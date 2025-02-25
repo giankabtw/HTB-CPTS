@@ -53,3 +53,19 @@ After executing the Hydra brute-force attack, the following valid FTP credential
 
 * **Username:** robin
 * **Password:** 7iz4rnckjsduza7
+
+ [![Screenshot-2025-02-25-134635.png](https://i.postimg.cc/yYqxw7VP/Screenshot-2025-02-25-134635.png)](https://postimg.cc/Th9TbM5L)
+
+ * **Use the discovered username with its password to login via SSH and obtain the flag.txt file. Submit the contents as your answer.**
+Using the following command, we attempt to log in via SSH:
+
+```bash
+ssh robin@10.129.203.6
+```
+When prompted, enter the previously discovered password:
+```bash
+Password: 7iz4rnckjsduza7
+```
+After successfully logging into the system via SSH, I performed basic enumeration and found a file named flag.txt in the home directory.
+
+[![Screenshot-2025-02-25-135413.png](https://i.postimg.cc/SKXpSzdz/Screenshot-2025-02-25-135413.png)](https://postimg.cc/PLk7KJBt)
