@@ -69,3 +69,35 @@ Password: 7iz4rnckjsduza7
 After successfully logging into the system via SSH, I performed basic enumeration and found a file named flag.txt in the home directory.
 
 [![Screenshot-2025-02-25-135413.png](https://i.postimg.cc/SKXpSzdz/Screenshot-2025-02-25-135413.png)](https://postimg.cc/PLk7KJBt)
+
+
+# Attacking SMB
+
+* **What is the name of the shared folder with READ permissions?**
+
+To enumerate SMB shares on the target, I used smbmap with the following command:
+
+```bash
+smbmap -H 10.129.8.187
+```
+This provided the following output:
+
+[![Screenshot-2025-02-25-134635.png](https://i.postimg.cc/BvX56JRz/Screenshot-2025-02-25-134635.png)](https://postimg.cc/kVPRYPJN)
+
+**Answer:** GGJ
+
+* **What is the password for the username "jason"?**
+To answer this question, I leveraged CrackMapExec to test SMB authentication against the target system. The command used was:
+```bash
+crackmapexec smb 10.129.8.187 -u jason -p pws.list --local-auth
+```
+The output shows multiple failed login attempts, but eventually, a valid credential was discovered:
+
+**Username:** jason
+**Password:** 34c8zuNBo91!@28Bszh
+
+This credential can now be used for further enumeration or privilege escalation within the target system.
+
+[![Screenshot-2025-02-25-152630.png](https://i.postimg.cc/cC94rGpD/Screenshot-2025-02-25-152630.png)](https://postimg.cc/tn6HMwCP)
+
+
