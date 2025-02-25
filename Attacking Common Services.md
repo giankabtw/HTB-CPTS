@@ -27,4 +27,4 @@ nmap -sC -sV -p 2000-3000 10.129.203.6
 This scan revealed an FTP server running on port 2121. The absence of results in the initial scan suggests that the service was running on a non-standard port outside the top 1000 most common ports.
 
 
-[![Screenshot-2025-02-25-120041.png](https://i.postimg.cc/R0XrMZ1H/Screenshot-2025-02-25-120041.png)](https://postimg.cc/cKgkhZbx) 
+[![Screenshot-2025-02-25-120041.png](https://i.postimg.cc/wj4PPG9X/Screenshot-2025-02-25-120041.png)](https://postimg.cc/gxRNL4Xj)
