@@ -98,6 +98,39 @@ The output shows multiple failed login attempts, but eventually, a valid credent
 
 This credential can now be used for further enumeration or privilege escalation within the target system.
 
+
 [![Screenshot-2025-02-25-152630.png](https://i.postimg.cc/cC94rGpD/Screenshot-2025-02-25-152630.png)](https://postimg.cc/tn6HMwCP)
 
 
+* **Login as the user "jason" via SSH and find the flag.txt file. Submit the contents as your answer.**
+
+Since we now have the correct username and password, we can attempt to SSH into the target system as the jason user. However, when we try, we encounter the following issue:
+
+*jason@10.129.8.187: Permission denied (publickey).*
+
+[![Screenshot-2025-02-25-153410.png](https://i.postimg.cc/6q7Ffs7b/Screenshot-2025-02-25-153410.png)](https://postimg.cc/XBb2nzk9)
+
+While enumerating the SMB shares, I discovered an id_rsa key. To retrieve the key from the GGJ SMB share, I attempted to access it using the following command:
+
+```bash
+smbclient \\\\10.129.8.187\\GGJ -U jason
+````
+
+[![Screenshot-2025-02-25-154148.png](https://i.postimg.cc/X7LDB7DN/Screenshot-2025-02-25-154148.png)](https://postimg.cc/w7tkSHpn)
+
+Next, I used the command:
+
+```bash
+chmod 600 id_rsa
+````
+
+After obtaining the id_rsa key, I used the following command to log in via SSH:
+
+```bash
+ssh -i id_rsa jason@10.129.8.187
+````
+
+I successfully logged into the Ubuntu system and found the flag.txt file. The contents of the file were:
+**HTB{SMB_4TT4CKS_2349872359}**
+
+[![Screenshot-2025-02-25-154804.png](https://i.postimg.cc/k5KQ8TXN/Screenshot-2025-02-25-154804.png)](https://postimg.cc/4K4HRbcn)
