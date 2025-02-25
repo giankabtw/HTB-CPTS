@@ -28,3 +28,19 @@ This scan revealed an FTP server running on port 2121. The absence of results in
 
 
 [![Screenshot-2025-02-25-120041.png](https://i.postimg.cc/wj4PPG9X/Screenshot-2025-02-25-120041.png)](https://postimg.cc/gxRNL4Xj)
+
+* **What username is available for the FTP server?**
+
+  As discussed in the lecture, misconfigurations can introduce security risks, particularly when services allow anonymous authentication. Certain services, such as FTP, can be configured to permit access without requiring credentials.
+
+After identifying an FTP server running on port 2121 through Nmap scanning, an attempt was made to authenticate using anonymous login:
+```bash
+ftp -P 2121 anonymous@10.129.203.6
+```
+This resulted in successful access, confirming that the FTP server allows unauthenticated users to log in.
+
+Then I proceeded to enumerate and download files from the FTP server.
+
+[![Screenshot-2025-02-25-120041.png](https://i.postimg.cc/sDqH4Zmm/Screenshot-2025-02-25-120041.png)](https://postimg.cc/Whm72zQq)
+
+
