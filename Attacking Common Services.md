@@ -16,3 +16,15 @@ As we move forward in this field, we will need to get familiar with common servi
 # Questions and Answers 
 ## Attacking FTP
 * **What port is the FTP service running on?**
+An initial Nmap scan was conducted using the following command: 
+```bash
+nmap -sC -sV --top-ports 1000 10.129.203.6
+```
+This scan, which utilizes default scripts (-sC) and service/version detection (-sV), did not return any open ports. To further investigate, a targeted scan was performed on a specific port range:
+```bash
+nmap -sC -sV -p 2000-3000 10.129.203.6
+```
+This scan revealed an FTP server running on port 2121. The absence of results in the initial scan suggests that the service was running on a non-standard port outside the top 1000 most common ports.
+
+
+[![Screenshot-2025-02-25-120041.png](https://i.postimg.cc/R0XrMZ1H/Screenshot-2025-02-25-120041.png)](https://postimg.cc/cKgkhZbx) 
