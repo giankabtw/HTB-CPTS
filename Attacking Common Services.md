@@ -11,3 +11,8 @@ As we move forward in this field, we will need to get familiar with common servi
 - Validating Credentials
 - Remote Code Execution
 - Privilege Escalation
+
+
+# Questions and Answers 
+## Attacking FTP
+* **What port is the FTP service running on?**
