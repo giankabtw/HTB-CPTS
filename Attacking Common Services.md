@@ -134,3 +134,50 @@ I successfully logged into the Ubuntu system and found the flag.txt file. The co
 **HTB{SMB_4TT4CKS_2349872359}**
 
 [![Screenshot-2025-02-25-154804.png](https://i.postimg.cc/k5KQ8TXN/Screenshot-2025-02-25-154804.png)](https://postimg.cc/4K4HRbcn)
+
+## Attacking SQL Databases
+
+* *Authenticate to with user "htbdbuser" and password "MSSQLAccess01!"*
+
+
+* **What is the password for the "mssqlsvc" user?**
+
+  To begin, I performed an Nmap scan using the following command:
+
+```bash 
+nmap -sC -sV 10.129.80.163
+```
+The scan revealed that port 1433 was open, indicating the presence of Microsoft SQL Server 2019.
+
+Next, I connected to the Microsoft SQL Server using the following command:
+```bash
+sqlcmd -S 10.129.80.163 -U htbdbuser -P MSSQLAccess01!
+```
+Once connected to the database, I enumerated the available databases by running the following command:
+```bash
+SELECT name FROM master.dbo.sysdatabases;
+GO
+```
+The output revealed the following databases:
+```bash
+name
+------------------------------------------------------------------
+master
+tempdb
+model
+msdb
+hmaildb
+flagDB
+```
+The presence of **flagDB** suggests it may contain the flag information.
+
+I tried using the **flagDB** but got the following error message: 
+
+```bash
+1> USE flagDB
+2> GO
+Msg 916, Level 14, State 2, Server WIN-02\SQLEXPRESS, Line 1
+The server principal "htbdbuser" is not able to access the database "flagDB" under the current security context.
+```
+
+
