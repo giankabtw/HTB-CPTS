@@ -262,3 +262,37 @@ SQL (WIN-02\mssqlsvc WINSRV02\mssqlsvc@flagDB)> SELECT * FROM tb_flag;
 ```
 
 [![Screenshot-2025-02-26-102903.png](https://i.postimg.cc/wT83bqBc/Screenshot-2025-02-26-102903.png)](https://postimg.cc/SjdynpCJ)
+
+## Attacking RDP
+
+*RDP to  with user "htb-rdp" and password "HTBRocks!"*
+
+* **What is the name of the file that was left on the Desktop? (Format example: filename.txt)**
+
+To answer this question, I connected to the host using xfreerdp with the following command:
+```bash
+xfreerdp /v:10.129.203.13 /u:htb-rdp /p:HTBRocks!
+```
+Once connected I ccould see the file that was left on the Desktop:
+
+[![Screenshot-2025-02-26-112355.png](https://i.postimg.cc/YSYmSvj9/Screenshot-2025-02-26-112355.png)](https://postimg.cc/wtxBfTX8)
+
+* **Which registry key needs to be changed to allow Pass-the-Hash with the RDP protocol?**
+
+To allow Pass-the-Hash with the RDP, you need to modify the *DisableRestrictedAdmin* registry key.  Here's the registry path and how you can set it:
+
+Registry Key Path:
+HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Lsa
+
+Registry Key:
+DisableRestrictedAdmin (REG_DWORD)
+
+Value:
+Set the value of DisableRestrictedAdmin to 1 to allow Pass-the-Hash.
+
+So I went into the command line and used the command: 
+
+```bash
+reg add HKLM\System\CurrentControlSet\Control\Lsa /t REG_DWORD /v DisableRestrictedAdmin /d 0x0 /f
+```
+[![Screenshot-2025-02-26-113051.png](https://i.postimg.cc/QCyMmDVw/Screenshot-2025-02-26-113051.png)](https://postimg.cc/D41FftrP)
