@@ -306,3 +306,6 @@ xfreerdp /v:10.129.203.13 /u:Administrator /pth:0E14B9D6330BF16C30B1924111104824
 Once connected, I found the flag on the Desktop.
 
 [![Screenshot-2025-02-26-113936.png](https://i.postimg.cc/PfYhF19N/Screenshot-2025-02-26-113936.png)](https://postimg.cc/jCxGDnsr)
+
+## Attacking DNS 
+* **Find all available DNS records for the "inlanefreight.htb" domain on the target name server and submit the flag found as a DNS record as the answer.**
