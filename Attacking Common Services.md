@@ -318,5 +318,22 @@ git clone https://github.com/TheRook/subbrute.git
 Next, I ran the tool using the command:
 
 ```bash
-python3 subbrute.py -p inlanefreight.htb
+./subbrute.py inlanefreight.htb -s ./names.txt -r ./resolvers.txt
 ```
+
+After some time, I obtained two subdomains:
+
+
+```bash
+inlanefreight.htb
+hr.inlanefreight.htb
+```
+Next, I attempted a zone transfer on hr.inlanefreight.htb using the following command:
+
+```bash
+dig AXFR @10.129.75.96 hr.inlanefreight.htb
+```
+
+The transfer was successful, revealing the following records:
+
+[![Screenshot-2025-02-26-145648.png](https://i.postimg.cc/pX3QChhW/Screenshot-2025-02-26-145648.png)](https://postimg.cc/8jBrPCm9)
