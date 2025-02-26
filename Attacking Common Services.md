@@ -309,3 +309,14 @@ Once connected, I found the flag on the Desktop.
 
 ## Attacking DNS 
 * **Find all available DNS records for the "inlanefreight.htb" domain on the target name server and submit the flag found as a DNS record as the answer.**
+The hint for this question suggested using Subbrute, so I proceeded to download it with the following command:
+
+```bash
+git clone https://github.com/TheRook/subbrute.git
+```
+
+Next, I ran the tool using the command:
+
+```bash
+python3 subbrute.py -p inlanefreight.htb
+```
