@@ -408,7 +408,7 @@ Our task is to review the security of each of the three servers and present it t
 I began by performing an Nmap scan on the target machine with the following command:
 
 ```bash
-nmap -sC -sV 10.129.130.131
+nmap -sC -sV 10.129.81.81
 ```
 The scan revealed multiple open ports and their associated services:
 
@@ -449,3 +449,22 @@ Status: Autocommit enabled
 Target Hostname: WIN-EASY
 Windows Version: 10.0.17763
 SSL Certificate: Valid from Feb 26, 2025, to Aug 28, 2025
+
+
+After identifying open ports from my Nmap scan, I attempted to log in anonymously to the FTP server using the following command:
+
+```bash
+ftp -P 21 anonymous@10.129.81.81
+```
+
+However, this attempt was unsuccessful, suggesting that anonymous login was not permitted on the server.
+Since the mail server (SMTP) was running on port 25, I decided to enumerate it further to check for available commands. I used the following Nmap command:
+
+```bash
+nmap -Pn -sV -sC -p25 10.129.81.81
+```
+The results showed that the SMTP server supported commands like VRFY and RCPT, which could be useful for user enumeration and testing email delivery.
+
+[![Screenshot-2025-02-27-140937.png](https://i.postimg.cc/vBnvTJG7/Screenshot-2025-02-27-140937.png)](https://postimg.cc/N9gXPP9L)
+
+
