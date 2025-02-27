@@ -404,3 +404,48 @@ We were commissioned by the company Inlanefreight to conduct a penetration test 
 Our task is to review the security of each of the three servers and present it to the customer. According to our information, the first server is a server that manages emails, customers, and their files.
 
 * **You are targeting the inlanefreight.htb domain. Assess the target server and obtain the contents of the flag.txt file. Submit it as the answer.**
+
+I began by performing an Nmap scan on the target machine with the following command:
+
+```bash
+nmap -sC -sV 10.129.130.131
+```
+The scan revealed multiple open ports and their associated services:
+
+**Open Ports and Services**
+- **Port 21 (FTP):**
+
+Core FTP Server v2.0, build 725 (64-bit, Unregistered)
+SSL certificate detected with details:
+Common Name (CN): Test
+Organization (O): Testing
+Location: Florida, US
+Valid: 2022 - 2032
+
+- **Port 25 (SMTP - hMailServer)**
+
+Supports authentication via LOGIN and PLAIN methods
+
+- **Port 80 (HTTP - Apache 2.4.53)**
+
+Server: Apache/2.4.53 (Win64) OpenSSL/1.1.1n PHP/7.4.29
+Default page: Redirects to /dashboard/
+Possible Web Application: XAMPP
+Port 443 (HTTPS - Unidentified Service)
+
+Requires basic authentication (401 Unauthorized)
+
+- **Port 587 (SMTP - hMailServer)**
+
+Same authentication methods as port 25
+
+- **Port 3306 (MySQL - MariaDB 10.4.24)**
+
+Authentication Plugin: mysql_native_password
+Status: Autocommit enabled
+
+- **Port 3389 (RDP - Microsoft Terminal Services)**
+
+Target Hostname: WIN-EASY
+Windows Version: 10.0.17763
+SSL Certificate: Valid from Feb 26, 2025, to Aug 28, 2025
