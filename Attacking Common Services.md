@@ -472,3 +472,5 @@ I first attempted user enumeration with the following command:
 smtp-user-enum -M RCPT -U users.list -D inlanefreight.htb -t 10.129.81.81
 ```
 I got one valid user: **fiona@inlanefreight.htb**
+
+[![Screenshot-2025-02-27-141532.png](https://i.postimg.cc/xTBTyBQN/Screenshot-2025-02-27-141532.png)](https://postimg.cc/rKCkqnKq)
