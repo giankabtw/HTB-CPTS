@@ -467,4 +467,8 @@ The results showed that the SMTP server supported commands like VRFY and RCPT, w
 
 [![Screenshot-2025-02-27-140937.png](https://i.postimg.cc/vBnvTJG7/Screenshot-2025-02-27-140937.png)](https://postimg.cc/N9gXPP9L)
 
-
+I first attempted user enumeration with the following command:
+```bash
+smtp-user-enum -M RCPT -U users.list -D inlanefreight.htb -t 10.129.81.81
+```
+I got one valid user: **fiona@inlanefreight.htb**
