@@ -802,3 +802,4 @@ smb: \IT\Simon\> ls
 smb: \IT\Simon\> get random.txt
 getting file \IT\Simon\random.txt of size 94 as random.txt (2.6 KiloBytes/sec) (average 3.2 KiloBytes/sec)
 ```
+**So the answer for this question will be random.txt** 
