@@ -829,7 +829,9 @@ After successfully obtaining the password for fiona, I attempted to access the R
 ```bash
 xfreerdp /u:fiona /p:'48Ns72!bns74@S84NNNSl' /v:10.129.203.10
 ```
-This command allowed me to connect to the remote desktop of the machine at 10.129.203.10 using the credentials I had discovered.
+This command allowed me to successfully connect to the remote desktop of the machine at 10.129.203.10 using the credentials I had discovered. Based on my previous enumeration, I know the user that can be compromised is **john**.
+
+* **Submit the contents of the flag.txt file on the Administrator Desktop.**
 
 
 
