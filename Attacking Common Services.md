@@ -517,3 +517,113 @@ MariaDB [phpmyadmin]> SELECT LOAD_FILE("C:/Users/Administrator/Desktop/flag.txt"
 1 row in set (0.019 sec)
 
 ```
+
+## Attacking Common Services - Medium
+
+The second server is an internal server (within the inlanefreight.htb domain) that manages and stores emails and files and serves as a backup of some of the company's processes. From internal conversations, we heard that this is used relatively rarely and, in most cases, has only been used for testing purposes so far.
+
+* **Assess the target server and find the flag.txt file. Submit the contents of this file as your answer.**
+
+I began by performing an Nmap scan on the target machine with the following command:
+
+```bash
+nmap -sC -sV 10.129.201.127
+```
+
+The scan revealed several open ports and their services:
+
+```bash
+Starting Nmap 7.94SVN ( https://nmap.org ) at 2025-02-28 06:25 CST
+Nmap scan report for 10.129.201.127
+Host is up (0.010s latency).
+Not shown: 995 closed tcp ports (reset)
+PORT     STATE SERVICE  VERSION
+22/tcp   open  ssh      OpenSSH 8.2p1 Ubuntu 4ubuntu0.4 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   3072 71:08:b0:c4:f3:ca:97:57:64:97:70:f9:fe:c5:0c:7b (RSA)
+|   256 45:c3:b5:14:63:99:3d:9e:b3:22:51:e5:97:76:e1:50 (ECDSA)
+|_  256 2e:c2:41:66:46:ef:b6:81:95:d5:aa:35:23:94:55:38 (ED25519)
+53/tcp   open  domain   ISC BIND 9.16.1 (Ubuntu Linux)
+| dns-nsid: 
+|_  bind.version: 9.16.1-Ubuntu
+110/tcp  open  pop3     Dovecot pop3d
+|_pop3-capabilities: RESP-CODES USER TOP AUTH-RESP-CODE STLS SASL(PLAIN) PIPELINING UIDL CAPA
+| ssl-cert: Subject: commonName=ubuntu
+| Subject Alternative Name: DNS:ubuntu
+| Not valid before: 2022-04-11T16:38:55
+|_Not valid after:  2032-04-08T16:38:55
+|_ssl-date: TLS randomness does not represent time
+995/tcp  open  ssl/pop3 Dovecot pop3d
+|_ssl-date: TLS randomness does not represent time
+| ssl-cert: Subject: commonName=ubuntu
+| Subject Alternative Name: DNS:ubuntu
+| Not valid before: 2022-04-11T16:38:55
+|_Not valid after:  2032-04-08T16:38:55
+|_pop3-capabilities: RESP-CODES SASL(PLAIN) USER PIPELINING AUTH-RESP-CODE TOP UIDL CAPA
+2121/tcp open  ftp      ProFTPD
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 54.51 seconds
+```
+After struggling to brute-force these services and further enumerate them without success, I decided to run a more comprehensive Nmap scan to ensure I wasn’t missing any open ports. I used the following command:
+
+```bash
+nmap -p- 10.129.201.127
+
+Starting Nmap 7.94SVN ( https://nmap.org ) at 2025-02-28 09:18 CST
+Nmap scan report for 10.129.201.127
+Host is up (0.0087s latency).
+Not shown: 65529 closed tcp ports (reset)
+PORT      STATE SERVICE
+22/tcp    open  ssh
+53/tcp    open  domain
+110/tcp   open  pop3
+995/tcp   open  pop3s
+2121/tcp  open  ccproxy-ftp
+30021/tcp open  unknown
+
+Nmap done: 1 IP address (1 host up) scanned in 7.47 seconds
+
+```
+This scan revealed an additional open port (30021). I ran a targeted scan against this port to gather more information about the service running on it. The command I used was:
+```bash
+ nmap -sC -sV -p30021 10.129.201.127
+Starting Nmap 7.94SVN ( https://nmap.org ) at 2025-02-28 09:20 CST
+Nmap scan report for 10.129.201.127
+Host is up (0.0088s latency).
+
+PORT      STATE SERVICE VERSION
+30021/tcp open  ftp
+| fingerprint-strings: 
+|   GenericLines: 
+|     220 ProFTPD Server (Internal FTP) [10.129.201.127]
+|     Invalid command: try being more creative
+|_    Invalid command: try being more creative
+1 service unrecognized despite returning data. If you know the service/version, please submit the following fingerprint at https://nmap.org/cgi-bin/submit.cgi?new-service :
+SF-Port30021-TCP:V=7.94SVN%I=7%D=2/28%Time=67C1D44A%P=x86_64-pc-linux-gnu%
+SF:r(GenericLines,90,"220\x20ProFTPD\x20Server\x20\(Internal\x20FTP\)\x20\
+SF:[10\.129\.201\.127\]\r\n500\x20Invalid\x20command:\x20try\x20being\x20m
+SF:ore\x20creative\r\n500\x20Invalid\x20command:\x20try\x20being\x20more\x
+SF:20creative\r\n");
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 66.94 seconds
+```
+After discovering that port 30021 was hosting another FTP server, I attempted to log in anonymously to check for accessible files. This attempt was successful, granting me access to the server.
+
+```bash
+ftp 10.129.201.127 30021
+Connected to 10.129.201.127.
+anonymous
+220 ProFTPD Server (Internal FTP) [10.129.201.127]
+Name (10.129.201.127:root): 331 Anonymous login ok, send your complete email address as your password
+Password: 
+230 Anonymous access granted, restrictions apply
+Remote system type is UNIX.
+Using binary mode to transfer files.
+```
+
+I continued enumerating the server and discovered a directory named simon, which contained a text file called mynotes.txt. Upon inspecting its contents, I noticed that it appeared to contain passwords for something, though its exact purpose was unclear at this stage.
+
+[![Screenshot-2025-02-28-102902.png](https://i.postimg.cc/m2fFqrFL/Screenshot-2025-02-28-102902.png)](https://postimg.cc/bdgJSpTW)
