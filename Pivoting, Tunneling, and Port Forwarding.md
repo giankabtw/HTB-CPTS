@@ -81,3 +81,5 @@ proxychains xfreerdp /v:172.16.5.19 /u:victor /p:pass@123
 ```
 The connection was successful, granting me access to the remote desktop. Navigating to the Desktop directory, I found the flag and retrieved it.
 
+[![Screenshot-2025-03-03-083203.png](https://i.postimg.cc/BnSkc3gN/Screenshot-2025-03-03-083203.png)](https://postimg.cc/56rsbZDF)
+
