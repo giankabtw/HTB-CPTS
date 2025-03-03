@@ -83,3 +83,54 @@ The connection was successful, granting me access to the remote desktop. Navigat
 
 [![Screenshot-2025-03-03-083203.png](https://i.postimg.cc/BnSkc3gN/Screenshot-2025-03-03-083203.png)](https://postimg.cc/56rsbZDF)
 
+
+## Remote/Reverse Port Forwarding with SSH
+
+*SSH with user "ubuntu" and password "HTB_@cademy_stdnt!"*
+* **Which IP address assigned to the Ubuntu server Pivot host allows communication with the Windows server target? (Format: x.x.x.x)**
+
+To begin, I connected to the SSH server using dynamic port forwarding with the following command:
+```bash
+ssh -D 9050 ubuntu@10.129.142.166
+```
+Once connected, I enumerated the network interfaces using:
+```bash
+ubuntu@WEB01:~$ ifconfig
+
+ens192: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 10.129.142.166  netmask 255.255.0.0  broadcast 10.129.255.255
+        inet6 dead:beef::250:56ff:feb0:1692  prefixlen 64  scopeid 0x0<global>
+        inet6 fe80::250:56ff:feb0:1692  prefixlen 64  scopeid 0x20<link>
+        ether 00:50:56:b0:16:92  txqueuelen 1000  (Ethernet)
+        RX packets 3733  bytes 311318 (311.3 KB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 294  bytes 26883 (26.8 KB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+ens224: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 172.16.5.129  netmask 255.255.254.0  broadcast 172.16.5.255
+        inet6 fe80::250:56ff:feb0:8a2f  prefixlen 64  scopeid 0x20<link>
+        ether 00:50:56:b0:8a:2f  txqueuelen 1000  (Ethernet)
+        RX packets 141  bytes 11147 (11.1 KB)
+        RX errors 0  dropped 14  overruns 0  frame 0
+        TX packets 128  bytes 9526 (9.5 KB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0
+        inet6 ::1  prefixlen 128  scopeid 0x10<host>
+        loop  txqueuelen 1000  (Local Loopback)
+        RX packets 697  bytes 54902 (54.9 KB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 697  bytes 54902 (54.9 KB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+```
+The output revealed three interfaces, one of which was ens224, assigned the IP address **172.16.5.129**. This indicated that the machine was part of a private network that granted communication with the Windows server target
+
+* **What IP address is used on the attack host to ensure the handler is listening on all IP addresses assigned to the host? (Format: x.x.x.x)**
+
+  When setting up a listener (e.g., for a reverse shell, Meterpreter handler, or any other network service), `0.0.0.0` ensures that the service listens on all available network interfaces rather than a specific one.
+
+
+
