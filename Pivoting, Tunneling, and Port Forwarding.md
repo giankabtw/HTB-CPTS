@@ -11,7 +11,7 @@ Once a foothold is gained during an assessment, it may be in scope to move later
 
 I began by connecting to the SSH server using the following command:
 ```bash
-ssh ubuntu@10.129.144.206
+ssh -D 9050 ubuntu@10.129.144.206
 ```
 After successfully logging in, I enumerated the network interfaces with:
 ```bash
@@ -47,3 +47,37 @@ lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
 ```
 
 * **Apply the concepts taught in this section to pivot to the internal network and use RDP (credentials: victor:pass@123) to take control of the Windows target on 172.16.5.19. Submit the contents of Flag.txt located on the Desktop.**
+
+
+To verify that my pivot was functioning correctly, I ran the following Nmap command:
+
+```bash
+nmap -v -sV -p9050 localhost
+```
+The results confirmed that port 9050 was open and running tor-socks, indicating that the pivot was set up properly.
+
+Next, I used Metasploit with ProxyChains to scan for RDP services:
+```bash
+proxychains msfconsole
+search rdp_scanner
+use auxiliary/scanner/rdp/rdp_scanner
+set rhosts 172.16.5.19
+run
+```
+
+The scan confirmed that RDP was enabled on 172.16.5.19:3389 with the following details:
+```bash
+Hostname: DC01
+Domain: INLANEFREIGHT
+FQDN: DC01.inlanefreight.local
+OS Version: Windows Server 2019 (10.0.17763)
+Network Level Authentication (NLA): Disabled
+```
+
+I then attempted to connect to the Windows host using ProxyChains and xfreerdp with the credentials HTB provided:
+
+```bash
+proxychains xfreerdp /v:172.16.5.19 /u:victor /p:pass@123
+```
+The connection was successful, granting me access to the remote desktop. Navigating to the Desktop directory, I found the flag and retrieved it.
+
