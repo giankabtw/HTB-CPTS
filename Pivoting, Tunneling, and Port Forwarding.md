@@ -263,7 +263,7 @@ curl --socks4 127.0.0.1:9050 172.16.5.135
 
 --socks4 127.0.0.1:9050: Routes traffic through the SOCKS proxy established via rpivot.
 ```
-
+[![Screenshot-2025-03-04-124019.png](https://i.postimg.cc/CMj0997p/Screenshot-2025-03-04-124019.png)](https://postimg.cc/yWY2ZQ2L)
 
 
 
