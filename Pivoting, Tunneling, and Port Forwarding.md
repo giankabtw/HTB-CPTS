@@ -385,3 +385,45 @@ proxychains xfreerdp /v:172.16.5.19 /u:victor /p:pass@123
 After successfully connecting, I navigated to the appropriate location and retrieved the flag from the system.
 
 [![Screenshot-2025-03-06-111229.png](https://i.postimg.cc/rmZ9cVNf/Screenshot-2025-03-06-111229.png)](https://postimg.cc/VrMtWcTt)
+
+## ICMP Tunneling with SOCKS
+
+*SSH to  with user "ubuntu" and password "HTB_@cademy_stdnt!"*
+
+* **Using the concepts taught thus far, connect to the target and establish an ICMP tunnel. Pivot to the DC (172.16.5.19, victor:pass@123) and submit the contents of C:\Users\victor\Downloads\flag.txt as the answer**
+
+First, I cloned the Ptunnel-ng repository from GitHub:
+```c
+git clone https://github.com/utoni/ptunnel-ng.git
+```
+Then, I navigated to the cloned directory and ran the autogen.sh script to set up the build environment:
+
+```c
+cd ptunnel-ng 
+sudo ./autogen.sh
+```
+
+Once the setup was complete, I copied the Ptunnel-ng directory to the pivot host (Ubuntu server) using SCP:
+```c
+scp -r ptunnel-ng ubuntu@10.129.202.64:~/
+```
+
+Next, I connected to the Ubuntu pivot host via SSH:
+```c
+ssh ubuntu@10.129.202.64
+```
+Once logged in, I navigated to the Ptunnel-ng directory and started the Ptunnel-ng server, specifying the target Windows host (172.16.5.19) and the RDP port (3389):
+```c
+sudo ./ptunnel-ng -r172.16.5.19 -R3389
+```
+On my attack machine, I initiated a Ptunnel-ng client connection to the pivot host (10.129.202.64). This set up a local listener on port 3388, which forwarded traffic to the Windows RDP service on 172.16.5.19:3389:
+```c
+sudo ./ptunnel-ng -p10.129.202.64 -l3388 -r172.16.5.19 -R3389
+```
+With the tunnel established, I connected to the Windows machine using xfreerdp, directing traffic through the local listener (127.0.0.1:3388):
+```c
+freerdp /v:127.0.0.1:3388 /u:victor /p:pass@123
+```
+After successfully connecting, I navigated to the appropriate location and retrieved the flag from the system.
+
+[![Screenshot-2025-03-06-141351.png](https://i.postimg.cc/BbtmkhRP/Screenshot-2025-03-06-141351.png)](https://postimg.cc/vxF76vYG)
