@@ -346,3 +346,42 @@ type flag.txt
 ```
 [![Screenshot-2025-03-05-093531.png](https://i.postimg.cc/DftH8Bm1/Screenshot-2025-03-05-093531.png)](https://postimg.cc/MXmdL07G)
 
+
+## SOCKS5 Tunneling with Chisel
+
+*SSH to with user "ubuntu" and password "HTB_@cademy_stdnt!"*
+
+* **Using the concepts taught in this section, connect to the target and establish a SOCKS5 Tunnel that can be used to RDP into the domain controller (172.16.5.19, victor:pass@123). Submit the contents of C:\Users\victor\Documents\flag.txt as the answer.**
+
+I began by connecting to the Ubuntu server using SSH:
+```c
+ssh ubuntu@10.129.202.64
+```
+Since the default version of Chisel was incompatible with the target, I downloaded an older version (v1.7.7) from GitHub:
+```c
+wget https://github.com/jpillora/chisel/releases/download/v1.7.7/chisel_1.7.7_linux_amd64.gz
+gunzip chisel_1.7.7_linux_amd64.gz
+chmod +x chisel_1.7.7_linux_amd64
+mv chisel_1.7.7_linux_amd64 chisel
+```
+I copied it to the home directory of the Ubuntu server:
+```c
+scp chisel ubuntu@10.129.202.64:~/
+```
+
+I edited the ProxyChains configuration file on the attack host to add a SOCKS5 proxy on port 1080 to enable pivoting:
+```c
+sudo nano /etc/proxychains.conf
+```
+At the end of the configuration file, I added the following line to define the proxy:
+
+```c
+socks5 127.0.0.1 1080
+```
+With the proxy configuration in place, I used ProxyChains and xfreerdp to connect to the Windows Domain Controller on 172.16.5.19:
+```c
+proxychains xfreerdp /v:172.16.5.19 /u:victor /p:pass@123
+```
+After successfully connecting, I navigated to the appropriate location and retrieved the flag from the system.
+
+[![Screenshot-2025-03-06-111229.png](https://i.postimg.cc/rmZ9cVNf/Screenshot-2025-03-06-111229.png)](https://postimg.cc/VrMtWcTt)
