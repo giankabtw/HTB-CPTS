@@ -446,3 +446,37 @@ A team member started a Penetration Test against the Inlanefreight environment b
 ### **Note:**
 
 **Keep in mind the tools and tactics you practiced throughout this module. Each one can provide a different route into the next pivot point. You may find a hop to be straightforward from one set of hosts, but that same tactic may not work to get you to the next. While completing this skills assessment, we encourage you to take proper notes, draw out a map of what you know of already, and plan out your next hop. Trying to do it on the fly will prove difficult without having a visual to reference.**
+
+
+## Questions and Answers: 
+
+* **Once on the webserver, enumerate the host for credentials that can be used to start a pivot or tunnel to another host in the network. In what user's directory can you find the credentials? Submit the name of the user as the answer.**
+
+I started by navigating to the home directory and found two user accounts:
+```c
+www-data@inlanefreight.local:/home# cd /home
+www-data@inlanefreight.local:/home# ls
+administrator
+webadmin
+```
+I checked the administrator directory, but it was empty. Next, I inspected the webadmin directory:
+```c
+www-data@inlanefreight.local:/home/webadmin# ls
+for-admin-eyes-only
+id_rsa
+```
+I used cat to read the for-admin-eyes-only file:
+```c
+www-data@inlanefreight.local:/home/webadmin# cat for-admin-eyes-only
+# note to self,
+in order to reach server01 or other servers in the subnet from here you have to us the user account:mlefay
+with a password of :
+Plain Human work!
+```
+
+* **Submit the credentials found in the user's home directory. (Format: user:password)**
+The credentials found in the user's home directory are:
+
+*mlefay:Plain Human work!*
+
+* **Enumerate the internal network and discover another active host. Submit the IP address of that host as the answer.**
