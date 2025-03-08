@@ -512,5 +512,24 @@ This command iterates through all possible IPs in the 172.16.5.0/24 subnet and i
 [![Screenshot-2025-03-08-094528.png](https://i.postimg.cc/5NvfRpbC/Screenshot-2025-03-08-094528.png)](https://postimg.cc/rKV6d1dV)
 
 
+* ** Use the information you gathered to pivot to the discovered host. Submit the contents of C:\Flag.txt as the answer.**
+
+  I tried connecting using
+
+  ssh -i /home/webadmin/id_rsa mlefay@172.16.5.35
+
+  But I kept getting an error saying:
+
+  ```c
+  /etc/ssh/ssh_config: line 25: Bad configuration option: usepam
+/etc/ssh/ssh_config line 27: Unsupported option "rsaauthentication"
+/etc/ssh/ssh_config: terminating, 1 bad configuration options
+```
+
+I looked online and they suggested to bypass the global config using 
+
+ssh -F /dev/null -i /home/webadmin/id_rsa mlefay@172.16.5.35
+
+Using -F /dev/null tells SSH to use an empty configuration file, thus avoiding the problematic lines. This gave me access to mlefay in host 172.16.5.35
 
 
