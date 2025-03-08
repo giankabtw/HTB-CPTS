@@ -505,7 +505,7 @@ for ip in $(seq 1 254); do
     ping -c 1 -W 1 172.16.5.$ip | grep "bytes from" &
 done
 wait
-```c
+```
 
 This command iterates through all possible IPs in the 172.16.5.0/24 subnet and identifies active hosts. The ping sweep returned a response, revealing an active host within the internal network.
 
