@@ -514,22 +514,21 @@ This command iterates through all possible IPs in the 172.16.5.0/24 subnet and i
 
 * ** Use the information you gathered to pivot to the discovered host. Submit the contents of C:\Flag.txt as the answer.**
 
-  I tried connecting using
 
-  ssh -i /home/webadmin/id_rsa mlefay@172.16.5.35
+I copied the contents of the id_rsa to my local host and installed ssshuttle 
 
-  But I kept getting an error saying:
+then I proceeded to use 
 
-  ```c
-  /etc/ssh/ssh_config: line 25: Bad configuration option: usepam
-/etc/ssh/ssh_config line 27: Unsupported option "rsaauthentication"
-/etc/ssh/ssh_config: terminating, 1 bad configuration options
-```
+sudo chmod +x id_rsa
+sudo chmod 600 id_rsa
+sudo sshuttle -r webadmin@10.129.229.129 -e "ssh -i id_rsa" 172.16.5.0/23 -v
 
-I looked online and they suggested to bypass the global config using 
+sshuttle creates an entry in our iptables to redirect all traffic to the 172.16.5.0/23 network through the pivot host.
 
-ssh -F /dev/null -i /home/webadmin/id_rsa mlefay@172.16.5.35
+and proceeded to scan the network using 
 
-Using -F /dev/null tells SSH to use an empty configuration file, thus avoiding the problematic lines. This gave me access to mlefay in host 172.16.5.35
+nmap -v -Pn -sT 172.16.5.35
 
+This showed that port 3389 was open, I proceeded to connect using 
 
+xfreerdp /v:172.16.5.35 /u:mlefay /p:'Plain Human work!'
