@@ -545,10 +545,10 @@ After successfully connecting via RDP, I navigated through the file system to lo
 
 The hint mentioned investigating LSASS, so I proceeded to create a memory dump of the lsass.exe process. On the target machine (via RDP), I did the following:
 
--Opened Task Manager.
--Navigated to the Processes tab.
--Located Local Security Authority Process (lsass.exe).
--Right-clicked and selected Create dump file.
+- Opened Task Manager.
+- Navigated to the Processes tab.
+- Located Local Security Authority Process (lsass.exe).
+- Right-clicked and selected Create dump file.
 
 This created a file named lsass.DMP, saved at C:\Users\mlefay\AppData\Local\Temp
 
