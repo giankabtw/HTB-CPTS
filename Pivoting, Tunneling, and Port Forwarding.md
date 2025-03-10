@@ -728,7 +728,15 @@ I attempted an RDP connection to 172.16.6.25 using the Windows built-in Remote D
 [![Screenshot-2025-03-10-120502.png](https://i.postimg.cc/PJm1Zn8H/Screenshot-2025-03-10-120502.png)](https://postimg.cc/vxZ1Fjz2)
 
 
+* **Submit the contents of C:\Flag.txt located on the Domain Controller.**
 
+This machine also has administrative access to the AutomateDCAdmin domain controller. 
+
+[![Screenshot-2025-03-10-121301.png](https://i.postimg.cc/4x3h49ws/Screenshot-2025-03-10-121301.png)](https://postimg.cc/4mr3BnrS)
+
+Inside the AutomateDCAdmin domain controller share I discovered the second flag.
+
+[![Screenshot-2025-03-10-121328.png](https://i.postimg.cc/BntXfGQv/Screenshot-2025-03-10-121328.png)](https://postimg.cc/DSk21HGV)
 
 
   
