@@ -512,23 +512,30 @@ This command iterates through all possible IPs in the 172.16.5.0/24 subnet and i
 [![Screenshot-2025-03-08-094528.png](https://i.postimg.cc/5NvfRpbC/Screenshot-2025-03-08-094528.png)](https://postimg.cc/rKV6d1dV)
 
 
-* ** Use the information you gathered to pivot to the discovered host. Submit the contents of C:\Flag.txt as the answer.**
+* **Use the information you gathered to pivot to the discovered host. Submit the contents of C:\Flag.txt as the answer.**
 
+I started by copying the contents of the id_rsa file (found in the webadmin user's home directory) from the target machine to my local attack host. After saving it as id_rsa, I updated its permissions to make it usable with SSH:
 
-I copied the contents of the id_rsa to my local host and installed ssshuttle 
-
-then I proceeded to use 
-
-sudo chmod +x id_rsa
+```c
 sudo chmod 600 id_rsa
+```
+
+I installed sshuttle and then established a connection to pivot through the compromised webadmin account on the pivot host (10.129.229.129):
+```c
 sudo sshuttle -r webadmin@10.129.229.129 -e "ssh -i id_rsa" 172.16.5.0/23 -v
+```
 
-sshuttle creates an entry in our iptables to redirect all traffic to the 172.16.5.0/23 network through the pivot host.
+*sshuttle dynamically creates IP tables rules to redirect traffic destined for the 172.16.5.0/23 network through the webadmin user on the pivot host. This allows us to route network traffic through the internal network as if we were directly connected.*
 
-and proceeded to scan the network using 
-
+Once the tunnel was established, I scanned one of the internal hosts (172.16.5.35) to look for open ports:
+```c
 nmap -v -Pn -sT 172.16.5.35
+```
 
-This showed that port 3389 was open, I proceeded to connect using 
-
+The scan revealed that port 3389 (RDP) was open. With the information gathered, I used xfreerdp to establish a Remote Desktop session with the credentials obtained earlier:
+```c
 xfreerdp /v:172.16.5.35 /u:mlefay /p:'Plain Human work!'
+```
+
+After successfully connecting via RDP, I navigated through the file system to locate and retrieve the flag.
+
