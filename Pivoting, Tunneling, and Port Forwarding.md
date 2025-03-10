@@ -539,3 +539,4 @@ xfreerdp /v:172.16.5.35 /u:mlefay /p:'Plain Human work!'
 
 After successfully connecting via RDP, I navigated through the file system to locate and retrieve the flag.
 
+[![Screenshot-2025-03-10-103351.png](https://i.postimg.cc/503jB92f/Screenshot-2025-03-10-103351.png)](https://postimg.cc/JDs1mLXF)
