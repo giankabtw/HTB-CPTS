@@ -653,3 +653,82 @@ sid S-1-5-19
 luid 997
 ```
 [![Screenshot-2025-03-10-112638.png](https://i.postimg.cc/RZWT0yVP/Screenshot-2025-03-10-112638.png)](https://postimg.cc/5XMz7Pzv)
+
+
+* **For your next hop enumerate the networks and then utilize a common remote access solution to pivot. Submit the C:\Flag.txt located on the workstation.**
+
+I ran ipconfig on the Windows machine at 172.16.5.35 to gather information about its network interfaces.
+
+```c
+
+C:\Users\mlefay\AppData\Local\Temp>ipconfig
+
+Windows IP Configuration
+
+
+Ethernet adapter Ethernet0:
+
+   Connection-specific DNS Suffix  . :
+   Link-local IPv6 Address . . . . . : fe80::c1e5:d721:a5fc:b714%4
+   IPv4 Address. . . . . . . . . . . : 172.16.5.35
+   Subnet Mask . . . . . . . . . . . : 255.255.0.0
+   Default Gateway . . . . . . . . . : 172.16.5.1
+
+Ethernet adapter Ethernet1 2:
+
+   Connection-specific DNS Suffix  . :
+   Link-local IPv6 Address . . . . . : fe80::d55:3c43:35f4:83f5%5
+   IPv4 Address. . . . . . . . . . . : 172.16.6.35
+   Subnet Mask . . . . . . . . . . . : 255.255.0.0
+   Default Gateway . . . . . . . . . :
+
+```
+
+I used the for loop (Ping Sweep) in the Windows command prompt to scan for live hosts in the 172.16.6.0/24 range.
+```c
+for /L %i in (1,1,254) do @ping -n 1 -w 100 172.16.6.%i | find "Reply"
+
+Reply from 172.16.6.25: bytes=32 time=2ms TTL=128
+Reply from 172.16.6.35: bytes=32 time<1ms TTL=128
+Reply from 172.16.6.45: bytes=32 time=1ms TTL=64
+```
+To learn more about these hosts, I checked the ARP table:
+```c
+C:\Users\mlefay\AppData\Local\Temp>arp -a
+
+Interface: 172.16.5.35 --- 0x4
+  Internet Address      Physical Address      Type
+  172.16.5.15           00-50-56-b0-c1-28     dynamic
+  172.16.255.255        ff-ff-ff-ff-ff-ff     static
+  224.0.0.22            01-00-5e-00-00-16     static
+  224.0.0.251           01-00-5e-00-00-fb     static
+  224.0.0.252           01-00-5e-00-00-fc     static
+
+Interface: 172.16.6.35 --- 0x5
+  Internet Address      Physical Address      Type
+  172.16.6.25           00-50-56-b0-f6-2a     dynamic
+  172.16.6.45           00-50-56-b0-81-aa     dynamic
+  172.16.255.255        ff-ff-ff-ff-ff-ff     static
+  224.0.0.22            01-00-5e-00-00-16     static
+  224.0.0.251           01-00-5e-00-00-fb     static
+  224.0.0.252           01-00-5e-00-00-fc     static
+```
+This confirmed their presence on the same broadcast domain.
+
+[![Screenshot-2025-03-10-120050.png](https://i.postimg.cc/4dH6f9fm/Screenshot-2025-03-10-120050.png)](https://postimg.cc/r0c0gztk)
+
+
+Based on previously recovered credentials:
+
+- Username: vfrank
+- Password: Imply wet Unmasked!
+
+I attempted an RDP connection to 172.16.6.25 using the Windows built-in Remote Desktop Connection tool (mstsc.exe). The login was successful, granting me remote desktop access to the machine. Once inside the system, I navigated to the C:\ directory where I found the flag.
+
+[![Screenshot-2025-03-10-120502.png](https://i.postimg.cc/PJm1Zn8H/Screenshot-2025-03-10-120502.png)](https://postimg.cc/vxZ1Fjz2)
+
+
+
+
+
+  
