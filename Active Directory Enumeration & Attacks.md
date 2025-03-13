@@ -62,3 +62,53 @@ Once the domain page loaded, I browsed to the DNS Records section. Under the TXT
 
 [![Screenshot-2025-03-13-090412.png](https://i.postimg.cc/X71P62Vw/Screenshot-2025-03-13-090412.png)](https://postimg.cc/LnfDz3gX)
 
+### Initial Enumeration of the Domain
+
+* **From your scans, what is the "commonName" of host 172.16.5.5 ?**
+For this task, I performed a detailed network scan against the targets that we discovered earlier to identify open ports and extract the host information. I used Nmap with aggressive scanning enabled to perform service detection, OS fingerprinting, script scanning, and version detection:
+
+```c
+sudo nmap -v -A -iL hosts.txt -oN /home/htb-student/Documents/host-enum
+```
+
+One of the open ports returned important information about the host 172.16.5.5. By running the rdp-ntlm-info script, Nmap was able to extract additional details from the Remote Desktop Protocol (RDP) service on port 3389:
+
+```c
+3389/tcp open  ms-wbt-server Microsoft Terminal Services
+| rdp-ntlm-info: 
+|   Target_Name: INLANEFREIGHT
+|   NetBIOS_Domain_Name: INLANEFREIGHT
+|   NetBIOS_Computer_Name: ACADEMY-EA-DC01
+|   DNS_Domain_Name: INLANEFREIGHT.LOCAL
+|   DNS_Computer_Name: ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL
+|   Product_Version: 10.0.17763
+|_  System_Time: 2025-03-13T14:32:31+00:00
+|_ssl-date: 2025-03-13T14:32:39+00:00; 0s from scanner time.
+| ssl-cert: Subject: commonName=ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL
+| Issuer: commonName=ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL
+| Public Key type: rsa
+| Public Key bits: 2048
+| Signature Algorithm: sha256WithRSAEncryption
+| Not valid before: 2025-02-11T06:08:03
+| Not valid after:  2025-08-13T06:08:03
+| MD5:   ab1f 46b2 cf15 74bc e1e1 b183 c5ef 902e
+|_SHA-1: bd7b cfa2 bd90 7dd4 a546 2552 6d1f 5537 77e7 b659
+```
+
+
+* **What host is running "Microsoft SQL Server 2019 15.00.2000.00"? (IP address, not Resolved name)**
+
+From the previous Nmap scan results, I identified that the host 172.16.5.130 is running Microsoft SQL Server 2019, version 15.00.2000.00.
+
+```c
+Nmap scan report for 172.16.5.130
+Host is up (0.0014s latency).
+Not shown: 992 closed tcp ports (reset)
+PORT      STATE SERVICE       VERSION
+80/tcp    open  http          Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
+135/tcp   open  msrpc         Microsoft Windows RPC
+139/tcp   open  netbios-ssn   Microsoft Windows netbios-ssn
+445/tcp   open  microsoft-ds?
+808/tcp   open  ccproxy-http?
+1433/tcp  open  ms-sql-s      Microsoft SQL Server 2019 15.00.2000.00; RTM
+```
