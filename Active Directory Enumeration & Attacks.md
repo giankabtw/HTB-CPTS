@@ -1,4 +1,8 @@
-## Active Directory Enumeration & Attacks
+# Active Directory Enumeration & Attacks
 Active Directory (AD) is the leading enterprise domain management suite, providing identity and access management, centralized domain administration, authentication, and much more. Due to the many features and complexity of AD, it presents a large attack surface that is difficult to secure properly. To be successful as infosec professionals, we must understand AD architectures and how to secure our enterprise environments. As Penetration testers, having a firm grasp of what tools, techniques, and procedures are available to us for enumerating and attacking AD environments and commonly seen AD misconfigurations is a must.
 
 ## Questions and Answers
+
+### External Recon and Enumeration Principles
+
+* **While looking at inlanefreights public records; A flag can be seen. Find the flag and submit it. ( format == HTB{******} )**
