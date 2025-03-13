@@ -56,3 +56,9 @@ Now that we have our scope clearly defined for this module, we can dive into exp
 ### External Recon and Enumeration Principles
 
 * **While looking at inlanefreights public records; A flag can be seen. Find the flag and submit it. ( format == HTB{******} )**
+For this task, I took advanted of the BGP Toolkit by Hurricane Electric. In the search bar, I entered the target domain: *inlanefreight.com*
+
+Once the domain page loaded, I browsed to the DNS Records section. Under the TXT Records, I found the following information:
+
+[![Screenshot-2025-03-13-090412.png](https://i.postimg.cc/X71P62Vw/Screenshot-2025-03-13-090412.png)](https://postimg.cc/LnfDz3gX)
+
