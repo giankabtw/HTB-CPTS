@@ -218,3 +218,113 @@ Once Hashcat completed the cracking process, I reviewed the results by running:
 cat svc_cracked.txt
 SVC_QUALYS::INLANEFREIGHT:5cb2c5bc321a876a:4b659b343655147dada26c4e21ede70d:01010000000000006fe2f15cde94db019440b1162dc10e410000000002001a0049004e004c0041004e004500460052004500490047004800540001001e00410043004100440045004d0059002d00450041002d004d005300300031000400260049004e004c0041004e00450046005200450049004700480054002e004c004f00430041004c0003004600410043004100440045004d0059002d00450041002d004d005300300031002e0049004e004c0041004e00450046005200450049004700480054002e004c004f00430041004c000500260049004e004c0041004e00450046005200450049004700480054002e004c004f00430041004c00070008006fe2f15cde94db0106000400020000000800300030000000000000000000000000300000b3517a0e8ed7e6d67ea022f0b1f9c03843cd9b804d89be630d8a8fca650a8d2b0a001000000000000000000000000000000000000900200063006900660073002f003100370032002e00310036002e0035002e00320035000000000000000000:security#1
 ```
+
+### Enumerating & Retrieving Password Policies
+
+>*SSH to 10.129.67.132 (ACADEMY-EA-ATTACK01) with user "htb-student" and password "HTB_@cademy_stdnt!"*
+
+* **What is the default Minimum password length when a new domain is created? (One number)**
+
+This answer was given throughout the lecture. The default password policy when a new domain is created is as follows, and there have been plenty of organizations that never changed this policy:
+Minimum password length	7 
+
+* **What is the minPwdLength set to in the INLANEFREIGHT.LOCAL domain? (One number)**
+
+I started by connecting to the target machine at 10.129.167.132 via SSH, using the provided credentials. Once connected, I ran ifconfig to identify the available network interfaces and their respective IP addresses:
+```c
+─[htb-student@ea-attack01]─[~]
+└──╼ $ifconfig
+docker0: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500
+        inet 172.17.0.1  netmask 255.255.0.0  broadcast 172.17.255.255
+        ether 02:42:43:49:a1:9c  txqueuelen 0  (Ethernet)
+        RX packets 0  bytes 0 (0.0 B)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 0  bytes 0 (0.0 B)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+ens192: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 10.129.67.132  netmask 255.255.0.0  broadcast 10.129.255.255
+        inet6 dead:beef::2055:97c0:f1ab:ad95  prefixlen 64  scopeid 0x0<global>
+        inet6 fe80::ff38:fdaa:b937:bf38  prefixlen 64  scopeid 0x20<link>
+        ether 00:50:56:b0:a9:7a  txqueuelen 1000  (Ethernet)
+        RX packets 22873  bytes 2099329 (2.0 MiB)
+        RX errors 0  dropped 340  overruns 0  frame 0
+        TX packets 1041  bytes 120087 (117.2 KiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+ens224: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 172.16.5.225  netmask 255.255.254.0  broadcast 172.16.5.255
+        inet6 fe80::32e6:baa0:e3aa:25da  prefixlen 64  scopeid 0x20<link>
+        ether 00:50:56:b0:f5:68  txqueuelen 1000  (Ethernet)
+        RX packets 815  bytes 52054 (50.8 KiB)
+        RX errors 0  dropped 6  overruns 0  frame 0
+        TX packets 45  bytes 3622 (3.5 KiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0
+        inet6 ::1  prefixlen 128  scopeid 0x10<host>
+        loop  txqueuelen 1000  (Local Loopback)
+        RX packets 20  bytes 1200 (1.1 KiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 20  bytes 1200 (1.1 KiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+```
+
+Next, I performed a ping sweep on the 172.16.5.0/24 range to discover other active hosts on the network
+```c
+for ip in $(seq 1 254); do
+    ping -c 1 -W 1 172.16.5.$ip | grep "bytes from" &
+done
+wait
+```
+This revealed two new active ip addresses 172.16.5.5 and 172.16.5.225. I then ran enum4linux to enumerate the domain:
+```c
+enum4linux-ng -P 172.16.5.5 -oA ilfreight
+
+ =================================================
+|    Domain Information via RPC for 172.16.5.5    |
+ =================================================
+[+] Domain: INLANEFREIGHT
+[+] SID: S-1-5-21-3842939050-3880317879-2865463114
+[+] Host is part of a domain (not a workgroup)
+
+ =========================================================
+|    Domain Information via SMB session for 172.16.5.5    |
+ =========================================================
+[*] Enumerating via unauthenticated SMB session on 445/tcp
+[+] Found domain information via SMB
+NetBIOS computer name: ACADEMY-EA-DC01
+NetBIOS domain name: INLANEFREIGHT
+DNS domain: INLANEFREIGHT.LOCAL
+FQDN: ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL
+
+
+ =======================================
+|    Policies via RPC for 172.16.5.5    |
+ =======================================
+[*] Trying port 445/tcp
+[+] Found policy:
+domain_password_information:
+  pw_history_length: 24
+  min_pw_length: 8
+  min_pw_age: 1 day 4 minutes
+  max_pw_age: not set
+  pw_properties:
+  - DOMAIN_PASSWORD_COMPLEX: true
+  - DOMAIN_PASSWORD_NO_ANON_CHANGE: false
+  - DOMAIN_PASSWORD_NO_CLEAR_CHANGE: false
+  - DOMAIN_PASSWORD_LOCKOUT_ADMINS: false
+  - DOMAIN_PASSWORD_PASSWORD_STORE_CLEARTEXT: false
+  - DOMAIN_PASSWORD_REFUSE_PASSWORD_CHANGE: false
+domain_lockout_information:
+  lockout_observation_window: 30 minutes
+  lockout_duration: 30 minutes
+  lockout_threshold: 5
+domain_logoff_information:
+  force_logoff_time: not set
+
+Completed after 5.35 seconds
+```
+  
+
