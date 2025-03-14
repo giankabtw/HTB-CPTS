@@ -395,3 +395,65 @@ The DomainPasswordSpray attack successfully discovered a user account with the p
 
 [![Screenshot-2025-03-14-143415.png](https://i.postimg.cc/dV4Vt8SR/Screenshot-2025-03-14-143415.png)](https://postimg.cc/VJ08Kbw5)
 
+
+## Credentialed Enumeration - from Linux
+
+* **What AD User has a RID equal to Decimal 1170?**
+>  SSH to 10.129.241.55 (ACADEMY-EA-ATTACK01) with user "htb-student" and password "HTB_@cademy_stdnt!"
+
+I started by connecting to the target machine at 10.129.167.132 via SSH, using the provided credentials. Once connected, I ran rpcclient:
+```c
+  rpcclient -U "" -N 172.16.5.5
+```
+Next, I converted the given decimal value (1170) to its hexadecimal equivalent, 0x492. I then proceeded to run the query user command.
+```c
+rpcclient $> queryuser 0x492
+User Name   :	mmorgan
+	Full Name   :	Matthew Morgan
+	Home Drive  :	
+	Dir Drive   :	
+	Profile Path:	
+	Logon Script:	
+	Description :	
+	Workstations:	
+	Comment     :	
+	Remote Dial :
+	Logon Time               :	Thu, 10 Mar 2022 14:48:06 EST
+	Logoff Time              :	Wed, 31 Dec 1969 19:00:00 EST
+	Kickoff Time             :	Wed, 31 Dec 1969 19:00:00 EST
+	Password last set Time   :	Tue, 05 Apr 2022 15:34:55 EDT
+	Password can change Time :	Wed, 06 Apr 2022 15:34:55 EDT
+	Password must change Time:	Wed, 13 Sep 30828 22:48:05 EDT
+	unknown_2[0..31]...
+	user_rid :	0x492
+	group_rid:	0x201
+	acb_info :	0x00010210
+	fields_present:	0x00ffffff
+	logon_divs:	168
+	bad_password_count:	0x00000000
+	logon_count:	0x00000018
+	padding1[0..7]...
+	logon_hrs[0..21]...
+```
+
+* **What is the membercount: of the "Interns" group?**
+
+To answer this question, I ran CrackMapExec using the following command:
+```c
+sudo crackmapexec smb 172.16.5.5 -u forend -p Klmcargo2 --groups
+
+<snip>
+SMB         172.16.5.5      445    ACADEMY-EA-DC01  Shared Calendar Read                     membercount: 1
+SMB         172.16.5.5      445    ACADEMY-EA-DC01  VPN Users                                membercount: 1
+SMB         172.16.5.5      445    ACADEMY-EA-DC01  Interns                                  membercount: 10
+SMB         172.16.5.5      445    ACADEMY-EA-DC01  Website Admin                            membercount: 0
+SMB         172.16.5.5      445    ACADEMY-EA-DC01  Barracuda_all_access                     membercount: 0
+SMB         172.16.5.5      445    ACADEMY-EA-DC01  Supervisors Warehouse                    membercount: 15
+SMB         172.16.5.5      445    ACADEMY-EA-DC01  QA_users                                 membercount: 0
+SMB         172.16.5.5      445    ACADEMY-EA-DC01  Calendar Access                          membercount: 0
+SMB         172.16.5.5      445    ACADEMY-EA-DC01  Nars360_users                            membercount: 0
+SMB         172.16.5.5      445    ACADEMY-EA-DC01  Finance_billing_ilfreight                membercount: 6
+SMB         172.16.5.5      445    ACADEMY-EA-DC01  Nas Group                                membercount: 0
+SMB         172.16.5.5      445    ACADEMY-EA-DC01  Front Desk                               membercount: 6
+<snip>
+```
