@@ -489,3 +489,24 @@ I navigated to the Analysis tab and clicked on **List All Kerberoastable Account
 
 
 [![Screenshot-2025-03-17-105013.png](https://i.postimg.cc/d197Gp4p/Screenshot-2025-03-17-105013.png)](https://postimg.cc/ftJTN24f)
+
+* ** What PowerView function allows us to test if a user has administrative access to a local or remote host?**
+
+This was mentioned on the lecture: 
+**Test-AdminAccess** - Tests if the current user has administrative access to the local (or a remote) machine.
+
+* **Run Snaffler and hunt for a readable web config file. What is the name of the user in the connection string within the file?**
+
+Inside PowerShell I executed Snaffler with: 
+```c
+.\Snaffler.exe  -d INLANEFREIGHT.LOCAL -s -v data
+```
+
+This showed me the username in the connection string and also the password for it. 
+
+[![Screenshot-2025-03-17-110600.png](https://i.postimg.cc/Hsn2s9Ld/Screenshot-2025-03-17-110600.png)](https://postimg.cc/crqYFYYb)
+
+* **What is the password for the database user?**
+
+We got the answer from this question on the previous question. 
+
