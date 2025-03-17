@@ -457,3 +457,35 @@ SMB         172.16.5.5      445    ACADEMY-EA-DC01  Nas Group                   
 SMB         172.16.5.5      445    ACADEMY-EA-DC01  Front Desk                               membercount: 6
 <snip>
 ```
+
+
+## Credentialed Enumeration - from Windows
+
+>  RDP to 10.129.119.210 (ACADEMY-EA-MS01) with user "htb-student" and password "Academy_student_AD!"
+
+* ** Using Bloodhound, determine how many Kerberoastable accounts exist within the INLANEFREIGHT domain. (Submit the number as the answer)**
+
+I initiated an RDP connection to the target Windows host 10.129.119.210 using xfreerdp with the provided credentials:
+
+```c 
+xfreerdp /v:10.129.119.210 /u:htb-student /p:Academy_student_AD!
+```
+
+Once connected, I launched PowerShell with administrative privileges, navigated to the C:\Tools directory, and executed SharpHounde.exe with the command:
+
+```c
+ .\SharpHound.exe -c All --zipfilename ILFREIGHT
+```
+
+I proceeded to open BloodHound with:
+```c
+PS C:\Tools> bloodhound
+```
+Once on the interface I uploaded the data I exported: 
+
+[![Screenshot-2025-03-17-104655.png](https://i.postimg.cc/rprxRh62/Screenshot-2025-03-17-104655.png)](https://postimg.cc/wt97SQTw)
+
+I navigated to the Analysis tab and clicked on **List All Kerberoastable Accounts** 
+
+
+[![Screenshot-2025-03-17-105013.png](https://i.postimg.cc/d197Gp4p/Screenshot-2025-03-17-105013.png)](https://postimg.cc/ftJTN24f)
