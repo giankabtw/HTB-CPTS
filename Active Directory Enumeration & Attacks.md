@@ -548,3 +548,19 @@ Group       INLANEFREIGHT\Domain Admins   ActiveDirectory
 Group       INLANEFREIGHT\Domain Users    ActiveDirectory
 
 ```
+
+* **Utilizing techniques learned in this section, find the flag hidden in the description field of a disabled account with administrative privileges. Submit the flag as the answer.**
+  For this question I executed the following command on PowerShell:
+```c
+PS C:\Windows\system32> dsquery user -disabled -desc * | dsget user -samid -desc
+  desc                                                        samid
+  Built-in account for guest access to the computer/domain    guest
+  Key Distribution Center Service Account                     krbtgt
+  HTB{LD@P_I$_W1ld}                                           bross
+```
+
+This command does the following:
+
+dsquery user -disabled -desc *: Searches for all disabled user accounts and includes the description field.
+
+dsget user -samid -desc: Retrieves the SAM account name and description of the found accounts.
