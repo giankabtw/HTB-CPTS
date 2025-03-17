@@ -510,3 +510,41 @@ This showed me the username in the connection string and also the password for i
 
 We got the answer from this question on the previous question. 
 
+## Living Off the Land
+
+>  RDP to 10.129.143.146 (ACADEMY-EA-MS01) with user "htb-student" and password "Academy_student_AD!"
+
+* **Enumerate the host's security configuration information and provide its AMProductVersion.**
+
+I initiated an RDP connection to the target Windows host 10.129.119.210 using xfreerdp with the provided credentials:
+
+```c 
+xfreerdp /v:10.129.143.146 /u:htb-student /p:Academy_student_AD!
+```
+
+Once connected, I launched PowerShell with administrative privileges and executed:
+```c
+PS C:\Windows\system32> Get-MpComputerStatus | Select-Object AMProductVersion
+
+AMProductVersion
+----------------
+4.18.2109.6
+
+```
+
+* **What domain user is explicitly listed as a member of the local Administrators group on the target host?**
+
+  For this question I executed the following command on PowerShell:
+  
+ ```c
+
+ PS C:\Windows\system32> Get-LocalGroupMember -Group "Administrators" 
+
+ObjectClass Name                          PrincipalSource
+----------- ----                          ---------------
+User        ACADEMY-EA-MS01\Administrator Local
+User        INLANEFREIGHT\adunn           ActiveDirectory
+Group       INLANEFREIGHT\Domain Admins   ActiveDirectory
+Group       INLANEFREIGHT\Domain Users    ActiveDirectory
+
+```
