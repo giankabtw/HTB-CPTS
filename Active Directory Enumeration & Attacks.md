@@ -617,3 +617,14 @@ SAPService/srv01.inlanefreight.local  SAPService  CN=Account Operators,CN=Builti
 
 ```
 
+## Kerberoasting - from Windows
+
+>  RDP to 10.129.83.24 (ACADEMY-EA-MS01) with user "htb-student" and password "Academy_student_AD!"
+
+* **What is the name of the service account with the SPN 'vmware/inlanefreight.local'?**
+
+I initiated an RDP connection to the target Windows host 10.129.119.210 using xfreerdp with the provided credentials:
+
+```c 
+xfreerdp /v:10.129.83.24 /u:htb-student /p:Academy_student_AD!
+```
