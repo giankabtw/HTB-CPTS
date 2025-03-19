@@ -693,3 +693,69 @@ hashcat -m 13100 svc_tgs /usr/share/wordlists/rockyou.txt
 
 ```
 [![Screenshot-2025-03-19-095421.png](https://i.postimg.cc/mr6fyFL4/Screenshot-2025-03-19-095421.png)](https://postimg.cc/94TnW0wg)
+
+
+##ACL Enumeration
+
+> RDP to 10.129.213.13 (ACADEMY-EA-MS01) with user "htb-student" and password "Academy_student_AD!"
+
+* **What is the rights GUID for User-Force-Change-Password?**
+
+User-Force-Change-Password extended rights-GUID	00299570-246d-11d0-a768-00aa006e0529
+
+* **What flag can we use with PowerView to show us the ObjectAceType in a human-readable format during our enumeration?**
+
+ResolveGUIDs
+
+* **What privileges does the user damundsen have over the Help Desk Level 1 group?**
+  
+GenericWrite 
+
+* **Using the skills learned in this section, enumerate the ActiveDirectoryRights that the user forend has over the user dpayne (Dagmar Payne).**
+  
+I initiated an RDP connection to the target Windows host 10.129.166.224 using xfreerdp with the provided credentials:
+
+```c 
+xfreerdp /v:10.129.166.224 /u:htb-student /p:Academy_student_AD!
+```
+Once connected, I launched Command Prompt with administrative privileges and executed:
+
+```c
+PS C:\Tools> Import-Module .\PowerView.ps1
+PS C:\Tools> $sid = Convert-NameToSid forend
+PS C:\Tools> Get-DomainObjectACL -ResolveGUIDs -Identity dpayne | ? {$_.SecurityIdentifier -eq $sid}
+
+
+AceType               : AccessAllowed
+ObjectDN              : CN=Dagmar Payne,OU=HelpDesk,OU=IT,OU=HQ-NYC,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+ActiveDirectoryRights : GenericAll
+OpaqueLength          : 0
+ObjectSID             : S-1-5-21-3842939050-3880317879-2865463114-1152
+InheritanceFlags      : ContainerInherit
+BinaryLength          : 36
+IsInherited           : False
+IsCallback            : False
+PropagationFlags      : None
+SecurityIdentifier    : S-1-5-21-3842939050-3880317879-2865463114-5614
+AccessMask            : 983551
+AuditFlags            : None
+AceFlags              : ContainerInherit
+AceQualifier          : AccessAllowed
+```
+
+* **What is the ObjectAceType of the first right that the forend user has over the GPO Management group? (two words in the format Word-Word)**
+
+On PowerShell I executed: 
+```c
+PS C:\Tools> Import-Module .\PowerView.ps1
+PS C:\Tools> $sid = Convert-NameToSid forend
+PS C:\Tools> $group = Get-DomainGroup -Identity "GPO Management" -Properties DistinguishedName, SID
+>>
+PS C:\Tools> Get-DomainObjectACL -ResolveGUIDs -Identity $group.DistinguishedName |
+>>   Where-Object { $_.SecurityIdentifier -eq $sid } |
+>>   Select-Object -First 1 ActiveDirectoryRights, ObjectAceType
+
+ActiveDirectoryRights ObjectAceType
+--------------------- -------------
+                 Self Self-Membership
+```
