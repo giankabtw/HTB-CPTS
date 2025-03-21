@@ -759,3 +759,41 @@ ActiveDirectoryRights ObjectAceType
 --------------------- -------------
                  Self Self-Membership
 ```
+
+## Privileged Access
+
+>  RDP to 10.129.62.51 (ACADEMY-EA-MS01) with user "htb-student" and password "Academy_student_AD!"
+
+* **What other user in the domain has CanPSRemote rights to a host?**
+
+I initiated an RDP connection to the target Windows host 10.129.62.51 using xfreerdp with the provided credentials:
+
+```c 
+xfreerdp /v:10.129.62.51 /u:htb-student /p:Academy_student_AD!
+```
+
+Once connected, I launched PowerShell with administrative privileges and executed:
+
+```
+.\SharpHound.exe -c All --zipfilename ILFREIGHT
+```
+The command performs Active Directory (AD) data collection using SharpHound. I then proceeded to launch bloodhound
+
+```c
+PS C:\Tools\BloodHound-GUI> .\BloodHound.exe
+```
+
+Once BloodHound was launched, I proceeded to upload the data I had previously collected.
+
+In the Raw Query box at the bottom of the screen, I entered the following query:
+
+```c
+MATCH p1=shortestPath((u1:User)-[r1:MemberOf*1..]->(g1:Group)) MATCH p2=(u1)-[:CanPSRemote*1..]->(c:Computer) RETURN p2
+```
+
+* **What host can this user access via WinRM? (just the computer name)**
+
+Using the same RAW Query we executed earlier, we can identify the hosts that the user has access to.
+
+[![Screenshot-2025-03-21-093743.png](https://i.postimg.cc/T2KdQHRz/Screenshot-2025-03-21-093743.png)](https://postimg.cc/kDdPgsRs)
+
