@@ -43,3 +43,36 @@ UsesRC4Encryption       : False
 ```
 
 [![Screenshot-2025-03-25-091750.png](https://i.postimg.cc/W1V0mvYj/Screenshot-2025-03-25-091750.png)](https://postimg.cc/ZCf9Z1hD)
+
+
+* **What domain does the INLANEFREIGHT.LOCAL domain have a forest transitive trust with?**
+Answer: FREIGHTLOGISTICS.LOCAL
+```c
+Direction               : BiDirectional
+DisallowTransivity      : False
+DistinguishedName       : CN=FREIGHTLOGISTICS.LOCAL,CN=System,DC=INLANEFREIGHT,DC=LOCAL
+ForestTransitive        : True
+IntraForest             : False
+IsTreeParent            : False
+IsTreeRoot              : False
+Name                    : FREIGHTLOGISTICS.LOCAL
+ObjectClass             : trustedDomain
+ObjectGUID              : 1597717f-89b7-49b8-9cd9-0801d52475ca
+SelectiveAuthentication : False
+SIDFilteringForestAware : False
+SIDFilteringQuarantined : False
+Source                  : DC=INLANEFREIGHT,DC=LOCAL
+Target                  : FREIGHTLOGISTICS.LOCAL
+TGTDelegation           : False
+TrustAttributes         : 8
+TrustedPolicy           :
+TrustingPolicy          :
+TrustType               : Uplevel
+UplevelOnly             : False
+UsesAESKeys             : False
+UsesRC4Encryption       : False
+```
+
+* **What direction is this trust?**
+
+  Anser: BiDirectional
