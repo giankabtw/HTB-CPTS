@@ -166,6 +166,21 @@ Once connected, I navigated to  C:\ and successfully retrieved the flag: aud1t_g
 4- **Use a common method to obtain weak credentials for another user. Submit the username for the user whose credentials you obtain.**
 5- **What is this user's password?**
 
+From my previous enumeration I know that the DC is running on 172.16.7.3:
+```c
+┌─[htb-student@skills-par01]─[~/Desktop]
+└──╼ $nmblookup -A 172.16.7.3
+Looking up status of 172.16.7.3
+	DC01            <00> -         B <ACTIVE> 
+	INLANEFREIGHT   <00> - <GROUP> B <ACTIVE> 
+	INLANEFREIGHT   <1c> - <GROUP> B <ACTIVE> 
+	DC01            <20> -         B <ACTIVE> 
+	INLANEFREIGHT   <1b> -         B <ACTIVE> 
+
+	MAC Address = 00-50-56-B0-3F-5C
+
+```
+
 I started by using rpcclient to enumerate the domain users on the target machine. I ran the following command to get a list of usernames:
 ```c
 
